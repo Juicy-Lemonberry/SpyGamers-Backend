@@ -1,0 +1,6 @@
+model Session {
+  token       String   @id @db.VarChar(64)
+  expiry_date DateTime 
+  accountId   Int
+  account     Account  @relation(fields: [accountId], references: [id])
+}
