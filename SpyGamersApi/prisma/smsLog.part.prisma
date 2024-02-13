@@ -1,0 +1,9 @@
+model SMSLog {
+  id             Int       @id @default(autoincrement())
+  account_id     Int
+  content        String    @db.Text
+  target_number  String    @db.VarChar(64)
+  timestamp      DateTime
+
+  account        Account   @relation(fields: [account_id], references: [id])
+}

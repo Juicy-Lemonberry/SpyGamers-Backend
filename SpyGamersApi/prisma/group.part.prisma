@@ -1,0 +1,8 @@
+model Group {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(128)
+  description String?  @db.Text
+
+  message GroupMessage[]
+  members GroupMember[]
+}

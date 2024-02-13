@@ -1,0 +1,11 @@
+model GroupMember {
+  account_id  Int
+  group_id    Int
+  is_admin    Boolean  @default(false)
+
+  account     Account  @relation(fields: [account_id], references: [id])
+  group       Group    @relation(fields: [group_id], references: [id])
+
+  @@id([account_id, group_id])
+}
+

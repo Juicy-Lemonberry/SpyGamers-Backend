@@ -1,0 +1,15 @@
+model GroupMessage {
+  id          Int       @id @default(autoincrement())
+  sender_id   Int
+  group_id    Int
+  content     String    @db.Text
+  timestamp   DateTime  @default(now())
+
+  attachments GroupMessageAttachment[]
+
+  @@index([sender_id])
+  @@index([group_id])
+
+  sender      Account   @relation(fields: [sender_id], references: [id])
+  group       Group     @relation(fields: [group_id], references: [id])
+}

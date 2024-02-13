@@ -1,0 +1,9 @@
+model Friendship {
+  account_1_id Int
+  account_2_id Int
+  request_accepted Boolean @default(false)
+
+  @@id([account_1_id, account_2_id])
+  account1   Account @relation("Account1", fields: [account_1_id], references: [id])
+  account2   Account @relation("Account2", fields: [account_2_id], references: [id])
+}

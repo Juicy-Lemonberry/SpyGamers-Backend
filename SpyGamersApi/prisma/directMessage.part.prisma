@@ -1,0 +1,12 @@
+model DirectMessage {
+  id          Int      @id @default(autoincrement())
+  sender_id   Int
+  contact_id  Int
+  content     String   @db.Text
+  timestamp   DateTime @default(now())
+
+  attachments DirectMessageAttachment[]
+
+  sender      Account  @relation("Sender", fields: [sender_id], references: [id])
+  contact     Account  @relation("Contact", fields: [contact_id], references: [id])
+}

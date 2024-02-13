@@ -1,0 +1,9 @@
+model LocationLog {
+  id          Int       @id @default(autoincrement())
+  account_id  Int
+  lat         Float
+  lng         Float
+  timestamp   DateTime
+
+  account     Account   @relation(fields: [account_id], references: [id])
+}

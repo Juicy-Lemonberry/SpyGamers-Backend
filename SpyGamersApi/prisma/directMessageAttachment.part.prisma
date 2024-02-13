@@ -1,0 +1,5 @@
+model DirectMessageAttachment {
+  id          Int            @id @default(autoincrement())
+  dm_id       Int
+  dm          DirectMessage  @relation(fields: [dm_id], references: [id])
+}

@@ -1,0 +1,5 @@
+model GroupMessageAttachment {
+  id           Int              @id @default(autoincrement())
+  message_id   Int
+  message      GroupMessage     @relation(fields: [message_id], references: [id])
+}
