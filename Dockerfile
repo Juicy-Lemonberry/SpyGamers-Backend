@@ -15,6 +15,9 @@ RUN npm install
 # Copy local code to the container image.
 COPY ./SpyGamersApi .
 
+EXPOSE 3000
+
+
 # Compile TypeScript to JavaScript.
 RUN npx tsc
 

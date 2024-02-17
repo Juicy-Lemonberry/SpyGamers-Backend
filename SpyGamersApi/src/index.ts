@@ -4,7 +4,11 @@ import fastify from 'fastify';
 const server = fastify({ logger: true });
 
 import { PrismaClient } from '@prisma/client';
+import settings from './config/settings';
 
+import accountRoutes from './routers/accounts';
+
+server.register(accountRoutes, { prefix: '/account' });
 
 server.get('/', async (request, reply) => {
   return { hello: 'world' };
@@ -12,8 +16,8 @@ server.get('/', async (request, reply) => {
 
 const start = async () => {
   try {
-    await server.listen({ port: 3000 });
-    console.log(`Server listening on 3000`);
+    await server.listen({ port: settings.SERVER_PORT, host: '0.0.0.0' });
+    console.log(`Server listening on ${settings.SERVER_PORT}`);
   } catch (err) {
     server.log.error(err);
     process.exit(1);
