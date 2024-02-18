@@ -5,16 +5,38 @@ import { PrismaClient, Prisma } from '@prisma/client';
 const prisma = new PrismaClient();
 const saltRounds = 10;
 
+const regexValidateEmail = (email: string) => {
+    return String(email)
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      );
+  };
+
 export const register = async (request: FastifyRequest, reply: FastifyReply) => {
     const { username, email, password } = request.body as { username: string; email: string; password: string };
 
     if (password.length < 4) {
-        return reply.status(400).send({ error: "Password is too short. It must be at least 4 characters long." });
+        return reply.status(400).send({ status: "LONG_PASSWORD" });
     }
 
     if (password.length > 16) {
-        return reply.status(400).send({ error: "Password is too long. It must be no more than 16 characters long." });
+        return reply.status(400).send({ status: "SHORT_PASSWORD" });
     }
+
+    if (username.length > 128) {
+        return reply.status(400).send({ status: "LONG_USERNAME" });
+    }
+
+    if (!regexValidateEmail(email)) {
+        return reply.status(400).send({ status: "INVALID_EMAIL" });
+    }
+
+    if (email.length > 256) {
+        return reply.status(400).send({ status: "LONG_EMAIL" });
+    }
+
+    // TODO: SMTP to verify email?
 
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
@@ -26,8 +48,6 @@ export const register = async (request: FastifyRequest, reply: FastifyReply) => 
                 password: hashedPassword,
             },
         });
-
-        // TODO: SMTP to verify email.
 
         reply.status(201).send({ status: "SUCCESS" });
     } catch (error) {

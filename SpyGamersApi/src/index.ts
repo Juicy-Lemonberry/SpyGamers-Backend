@@ -16,7 +16,7 @@ server.get('/', async (request, reply) => {
 
 const start = async () => {
   try {
-    await server.listen({ port: settings.SERVER_PORT, host: '0.0.0.0' });
+    await server.listen({ port: settings.SERVER_PORT, host: settings.LISTEN_ADDRESS });
     console.log(`Server listening on ${settings.SERVER_PORT}`);
   } catch (err) {
     server.log.error(err);
