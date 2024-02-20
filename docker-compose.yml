@@ -31,10 +31,11 @@ services:
       PGADMIN_LISTEN_PORT: 4321
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+      SPYGAMERS_SERVER_PORT: ${SPYGAMERS_SERVER_PORT}
     depends_on:
       - db
     ports:
-      - ${PGADMIN_PORT}:4321
+      - ${PGADMIN_PORT}:${SPYGAMERS_SERVER_PORT}
 
 volumes:
   pgdata:

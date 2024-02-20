@@ -130,4 +130,4 @@ dist
 .pnp.*
 
 # Images stored on the server..
-images/
+SpyGamersApi/images/

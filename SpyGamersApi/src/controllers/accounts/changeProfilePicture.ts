@@ -5,6 +5,8 @@ import { tryFindAccountBySessionToken } from '../../utils/tryFindAccountBySessio
 import * as fs from 'fs';
 import * as path from 'path';
 import { tryGetFileImageExtension } from '../../utils/tryGetFileImageExtension';
+import { ACCOUNT_IMAGE_DIRECTORY } from '../../const'
+import { deleteFilesWithName } from '../../utils/deleteFilesWithName';
 
 const prisma = new PrismaClient();
 
@@ -23,17 +25,14 @@ export const changeProfilePicture = async (request: FastifyRequest, reply: Fasti
         }
 
         // Define the target directory path
-        // TODO: Make the directory into like a globally accessible UTIL/CONSTANTS
-        const accountFolder = path.join(__dirname, '..', '..', '..', 'images', 'account');
-        const userFolder = path.join(accountFolder, `a${account.id}`);
-
-        // Create directories if they don't exist
-        await fs.promises.mkdir(accountFolder, { recursive: true });
+        const userFolder = path.join(ACCOUNT_IMAGE_DIRECTORY, `a${account.id}`);
         await fs.promises.mkdir(userFolder, { recursive: true });
 
         // Define the target file path
         const targetFilePath = path.join(userFolder, 'png.' + pictureExtension);
         const buffer = Buffer.from(pictureAsEncoded, 'base64');
+        // Delete any existing pfp files first, before writing to it:
+        await deleteFilesWithName(userFolder, "pfp");
         await fs.promises.writeFile(targetFilePath, buffer);
 
 
