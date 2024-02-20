@@ -1,18 +1,12 @@
 // src/index.ts
 import fastify from 'fastify';
-
-const server = fastify({ logger: true });
-
-import { PrismaClient } from '@prisma/client';
 import settings from './config/settings';
-
 import accountRoutes from './routers/accounts';
 
-server.register(accountRoutes, { prefix: '/account' });
+const server = fastify({ logger: true });
+server.register(require('@fastify/multipart'), { attachFieldsToBody: 'keyValues' });
 
-server.get('/', async (request, reply) => {
-  return { hello: 'world' };
-});
+server.register(accountRoutes, { prefix: '/account' });
 
 const start = async () => {
   try {

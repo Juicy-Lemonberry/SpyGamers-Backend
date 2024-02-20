@@ -17,9 +17,5 @@ COPY ./SpyGamersApi .
 
 EXPOSE 3000
 
-
-# Compile TypeScript to JavaScript.
-RUN npx tsc
-
 # Run the web service on container startup.
-CMD [ "node", "dist/index.js" ]
+CMD [ "npn", "run", "dev" ]
