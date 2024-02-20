@@ -1,0 +1,33 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Docker Compose (Database)",
+            "type": "shell",
+            "command": "docker-compose",
+            "args": [
+                "--file",
+                "docker-compose-database.yml",
+                "up",
+                "--build"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": [],
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "cmd.exe",
+                        "args": ["/d", "/c"]
+                    }
+                }
+            }
+        }
+    ]
+}

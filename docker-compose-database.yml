@@ -1,17 +1,7 @@
 version: '3.8'
-services:
-  api:
-    build: .
-    ports:
-      - ${NODE_SERVER_PORT}:3000
-    depends_on:
-      - db
-    environment:
-      SPYGAMERS_DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB_NAME}
-    volumes:
-      - ./images:/app/images
-      - ./SpyGamersApi:/app
 
+# Contains database only and pgadmin4...
+services:
   db:
     image: postgres:latest
     restart: always
@@ -31,11 +21,10 @@ services:
       PGADMIN_LISTEN_PORT: 4321
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
-      SPYGAMERS_SERVER_PORT: ${SPYGAMERS_SERVER_PORT}
     depends_on:
       - db
     ports:
-      - ${PGADMIN_PORT}:${SPYGAMERS_SERVER_PORT}
+      - ${PGADMIN_PORT}:4321
 
 volumes:
   pgdata:
