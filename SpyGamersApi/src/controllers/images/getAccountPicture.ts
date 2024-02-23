@@ -37,10 +37,16 @@ async function _findFirstPfpFilePath(folderDirectory: string): Promise<string | 
 
 
 export const getAccountPicture = async (request: FastifyRequest, reply: FastifyReply) => {
-    const { user_id } = request.query as { user_id: number };
+    const { username } = request.query as { username: string };
 
     try {
-        const accountFolder = path.join(ACCOUNT_IMAGE_DIRECTORY, `a${user_id}`);
+        const account = await prisma.account.findUniqueOrThrow({
+            where: {
+                username: username,
+            },
+        });
+
+        const accountFolder = path.join(ACCOUNT_IMAGE_DIRECTORY, `a${account.id}`);
         const pfpPath = await _findFirstPfpFilePath(accountFolder);
 
         if (pfpPath === undefined) {
@@ -53,6 +59,10 @@ export const getAccountPicture = async (request: FastifyRequest, reply: FastifyR
         const stream = fs.createReadStream(pfpPath)
         return reply.type(`image/${imageExtension}`).send(stream);
     } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
+            return reply.status(404).send({ status: `USERNAME_INVALID` });
+        }
+
         reply.status(500).send({ status: "FAILURE" });
     }
 };
@@ -62,9 +72,9 @@ export const getAccountPictureSchema = {
     properties: {
         querystring: {
             type: 'object',
-            required: ['user_id'],
+            required: ['username'],
             properties: {
-                user_id: { type: 'number' }
+                username: { type: 'string' }
             }
         }
     },
