@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 export async function tryFindAccountBySessionToken(sessionToken: string, prismaClient: PrismaClient) {
     const session = await prismaClient.session.findUnique({
         where: {
-        token: sessionToken,
+            token: sessionToken
         },
     });
 

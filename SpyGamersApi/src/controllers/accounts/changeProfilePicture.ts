@@ -29,7 +29,7 @@ export const changeProfilePicture = async (request: FastifyRequest, reply: Fasti
         await fs.promises.mkdir(userFolder, { recursive: true });
 
         // Define the target file path
-        const targetFilePath = path.join(userFolder, 'png.' + pictureExtension);
+        const targetFilePath = path.join(userFolder, 'pfp.' + pictureExtension);
         const buffer = Buffer.from(pictureAsEncoded, 'base64');
         // Delete any existing pfp files first, before writing to it:
         await deleteFilesWithName(userFolder, "pfp");
