@@ -5,7 +5,8 @@ import * as searchUserController from '../controllers/accounts/searchUser';
 import * as changeProfilePictureController from '../controllers/accounts/changeProfilePicture';
 import * as changeUsernameController from '../controllers/accounts/changeUsername';
 import * as setTimezoneController from '../controllers/accounts/setTimezone';
-import * as sendFrindRequestController from '../controllers/accounts/friendships/sendFriendRequest';
+import * as sendFriendRequestController from '../controllers/accounts/friendships/sendFriendRequest';
+import * as getFriendsController from '../controllers/accounts/friendships/getFriends';
 
 export default function (fastify: FastifyInstance, opts: any, done: Function) {
   // Base stuff
@@ -19,7 +20,8 @@ export default function (fastify: FastifyInstance, opts: any, done: Function) {
   fastify.post('/set-timezone', { schema: { body: setTimezoneController.setTimezoneSchema } }, setTimezoneController.setTimezone);
 
   // Friend requests related...
-  fastify.post('/send-friend-request', { schema: {body: sendFrindRequestController.sendFriendRequestSchema}}, sendFrindRequestController.sendFriendRequest)
-  
+  fastify.post('/send-friend-request', { schema: {body: sendFriendRequestController.sendFriendRequestSchema}}, sendFriendRequestController.sendFriendRequest)
+  fastify.post('/get-friends', { schema: { body: getFriendsController.getFriendsSchema}}, getFriendsController.getFriends)
+
   done();
 }
