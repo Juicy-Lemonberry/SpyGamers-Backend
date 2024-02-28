@@ -5,6 +5,7 @@ import * as searchUserController from '../controllers/accounts/searchUser';
 import * as changeProfilePictureController from '../controllers/accounts/changeProfilePicture';
 import * as changeUsernameController from '../controllers/accounts/changeUsername';
 import * as setTimezoneController from '../controllers/accounts/setTimezone';
+import * as sendFrindRequestController from '../controllers/accounts/friendships/sendFriendRequest';
 
 export default function (fastify: FastifyInstance, opts: any, done: Function) {
   // Base stuff
@@ -16,6 +17,9 @@ export default function (fastify: FastifyInstance, opts: any, done: Function) {
   fastify.put('/change-profile-picture', { schema: { body: changeProfilePictureController.changeProfilePictureSchema }}, changeProfilePictureController.changeProfilePicture);
   fastify.put('/change-username', { schema: { body: changeUsernameController.changeUsernameSchema } }, changeUsernameController.changeUsername);
   fastify.post('/set-timezone', { schema: { body: setTimezoneController.setTimezoneSchema } }, setTimezoneController.setTimezone);
+
+  // Friend requests related...
+  fastify.post('/send-friend-request', { schema: {body: sendFrindRequestController.sendFriendRequestSchema}}, sendFrindRequestController.sendFriendRequest)
   
   done();
 }
