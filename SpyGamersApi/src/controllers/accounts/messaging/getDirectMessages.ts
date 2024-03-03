@@ -13,6 +13,7 @@ interface SentMessage {
     content: string;
     timestamp: Date;
     attachments_id: number[];
+    is_deleted: boolean;
 }
 
 async function _getSentMessages(accountAId: number, accountBId: number, chunkSize: number) {
@@ -92,9 +93,10 @@ export const getDirectMessages = async (request: FastifyRequest, reply: FastifyR
             message_id: message.id,
             sender_username: message.sender.username,
             contact_username: message.contact.username,
-            content: message.content,
+            content: message.is_deleted ? "This message was deleted..." : message.content,
             timestamp: message.timestamp,
             attachments_id: message.attachments.map((attachment) => attachment.id),
+            is_deleted: message.is_deleted
         }));
 
         reply.status(201).send({

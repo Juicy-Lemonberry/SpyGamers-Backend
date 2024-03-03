@@ -13,6 +13,7 @@ import * as removeFriendController from '../controllers/accounts/friendships/rem
 import * as sendDirectMessageController from '../controllers/accounts/messaging/sendDirectMessage'
 import * as getDirectMessagesController from '../controllers/accounts/messaging/getDirectMessages'
 import * as editDirectMessageController from '../controllers/accounts/messaging/editDirectMessage'
+import { deleteDirectMessageSchema, deleteDirectMessage } from '../controllers/accounts/messaging/deleteDirectMessage';
 
 export default function (fastify: FastifyInstance, opts: any, done: Function) {
   // Base stuff
@@ -34,6 +35,7 @@ export default function (fastify: FastifyInstance, opts: any, done: Function) {
   fastify.post('/send-direct-message', { schema: {body: sendDirectMessageController.sendDirectMessageSchema}}, sendDirectMessageController.sendDirectMessage)
   fastify.post('/get-direct-messages', { schema: { body: getDirectMessagesController.getDirectMessagesSchema}}, getDirectMessagesController.getDirectMessages)
   fastify.put('/edit-direct-message', { schema: { body: editDirectMessageController.editDirectMessageSchema }}, editDirectMessageController.editDirectMessage )
+  fastify.delete('/delete-direct-message', { schema: { body: deleteDirectMessageSchema }}, deleteDirectMessage)
 
   done();
 }
