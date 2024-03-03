@@ -11,6 +11,7 @@ import * as getFriendsController from '../controllers/accounts/friendships/getFr
 import * as removeFriendController from '../controllers/accounts/friendships/removeFriend';
 
 import * as sendDirectMessageController from '../controllers/accounts/messaging/sendDirectMessage'
+import * as getDirectMessagesController from '../controllers/accounts/messaging/getDirectMessages'
 
 export default function (fastify: FastifyInstance, opts: any, done: Function) {
   // Base stuff
@@ -30,7 +31,7 @@ export default function (fastify: FastifyInstance, opts: any, done: Function) {
 
   // Direct Message Related...
   fastify.post('/send-direct-message', { schema: {body: sendDirectMessageController.sendDirectMessageSchema}}, sendDirectMessageController.sendDirectMessage)
-
+  fastify.post('/get-direct-messages', { schema: { body: getDirectMessagesController.getDirectMessagesSchema}}, getDirectMessagesController.getDirectMessages)
 
   done();
 }

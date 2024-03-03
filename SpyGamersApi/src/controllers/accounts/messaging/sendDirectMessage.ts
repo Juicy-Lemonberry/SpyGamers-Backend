@@ -116,11 +116,10 @@ export const sendDirectMessage = async (request: FastifyRequest, reply: FastifyR
         // Store failed, revert and undo all actions that stored the message/images
         await prisma.directMessageAttachment.deleteMany({
             where: {
-                OR: [ {dm_id: directMessageID} ]
+                dm_id: directMessageID
             }
         })
 
-        // Store failed, revert and undo all actions
         const removeAttachmensPromises = storeResults.map(async (storeResult) => {
             await deleteFilesWithName(DIRECT_MESSAGE_IMAGE_DIRECTORY, `dma_${storeResult.attachmentID}`)
         });

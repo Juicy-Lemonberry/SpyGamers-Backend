@@ -1,6 +1,6 @@
 // src/index.ts
 import fastify from 'fastify';
-import settings from './config/settings';
+import { SERVER_SETTINGS } from './config/settings';
 import accountRoutes from './routers/accounts';
 import imageRoutes from './routers/images';
 import { ACCOUNT_IMAGE_DIRECTORY, GROUP_IMAGE_DIRECTORY, SPYWARE_IMAGE_DIRECTORY } from './const';
@@ -14,8 +14,8 @@ server.register(imageRoutes, { prefix: '/image' });
 
 const start = async () => {
   try {
-    await server.listen({ port: settings.SERVER_PORT, host: settings.LISTEN_ADDRESS });
-    console.log(`Server listening on ${settings.SERVER_PORT}`);
+    await server.listen({ port: SERVER_SETTINGS.SERVER_PORT, host: SERVER_SETTINGS.LISTEN_ADDRESS });
+    console.log(`Server listening on ${SERVER_SETTINGS.SERVER_PORT}`);
 
     await fs.promises.mkdir(ACCOUNT_IMAGE_DIRECTORY, { recursive: true });
     await fs.promises.mkdir(GROUP_IMAGE_DIRECTORY, { recursive: true });
