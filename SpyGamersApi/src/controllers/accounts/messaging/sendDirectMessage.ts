@@ -47,16 +47,16 @@ async function _tryStoreAttachments(directMessageID: number, attachments: object
 }
 
 export const sendDirectMessage = async (request: FastifyRequest, reply: FastifyReply) => {
-    const { auth_token, target_username, content, attachments } = request.body as { 
-        auth_token: string;
-        target_username: string;
-        content: string;
-        attachments?: object[];
-    };
-
-    let directMessageID = -1;
-    
     try {
+        const { auth_token, target_username, content, attachments } = request.body as { 
+            auth_token: string;
+            target_username: string;
+            content: string;
+            attachments?: object[];
+        };
+
+        let directMessageID = -1;
+    
         if (isStringEmptyOrWhitespace(content)){
             return reply.status(406).send({ status: "EMPTY_CONTENT" });
         }
