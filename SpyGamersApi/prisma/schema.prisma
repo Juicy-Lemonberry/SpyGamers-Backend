@@ -106,6 +106,7 @@ model GroupMessage {
   group_id    Int
   content     String    @db.Text
   timestamp   DateTime  @default(now())
+  is_deleted   Boolean  @default(false)
 
   attachments GroupMessageAttachment[]
 

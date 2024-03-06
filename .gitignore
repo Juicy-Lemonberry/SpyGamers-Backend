@@ -131,3 +131,15 @@ dist
 
 # Images stored on the server..
 SpyGamersApi/images/
+
+# Postgres Server data
+pgdata/
+
+# Ollama Models Data...
+ollama_data/
+
+# Flowise Data
+flowise_data/
+
+# Redis volumne
+redis_data/
