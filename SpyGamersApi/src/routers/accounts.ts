@@ -14,6 +14,9 @@ import * as sendDirectMessageController from '../controllers/accounts/messaging/
 import * as getDirectMessagesController from '../controllers/accounts/messaging/getDirectMessages'
 import * as editDirectMessageController from '../controllers/accounts/messaging/editDirectMessage'
 import { deleteDirectMessageSchema, deleteDirectMessage } from '../controllers/accounts/messaging/deleteDirectMessage';
+import { setGamePreferenceSchema, setGamePreference } from '../controllers/accounts/preference/setGamePreference';
+import { getGamePreference, getGamePreferenceSchema } from '../controllers/accounts/preference/getGamePreference';
+import { deleteGamePreference, deleteGamePreferenceSchema } from '../controllers/accounts/preference/deleteGamePreference';
 
 export default function (fastify: FastifyInstance, opts: any, done: Function) {
   // Base stuff
@@ -25,6 +28,11 @@ export default function (fastify: FastifyInstance, opts: any, done: Function) {
   fastify.put('/change-profile-picture', { schema: { body: changeProfilePictureController.changeProfilePictureSchema }}, changeProfilePictureController.changeProfilePicture);
   fastify.put('/change-username', { schema: { body: changeUsernameController.changeUsernameSchema } }, changeUsernameController.changeUsername);
   fastify.post('/set-timezone', { schema: { body: setTimezoneController.setTimezoneSchema } }, setTimezoneController.setTimezone);
+
+  // Game Preference Configurations...
+  fastify.post('/add-game-preference', { schema: { body: setGamePreferenceSchema }}, setGamePreference)
+  fastify.delete('/delete-game-preference', { schema: { body: deleteGamePreferenceSchema }}, deleteGamePreference)
+  fastify.get('/get-game-preferences', { schema: { querystring: getGamePreferenceSchema}}, getGamePreference)
 
   // Friend requests related...
   fastify.post('/send-friend-request', { schema: {body: sendFriendRequestController.sendFriendRequestSchema}}, sendFriendRequestController.sendFriendRequest)
