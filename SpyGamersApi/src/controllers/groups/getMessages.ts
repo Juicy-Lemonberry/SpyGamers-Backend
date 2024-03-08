@@ -13,6 +13,17 @@ export const getGroupMessages = async (request: FastifyRequest, reply: FastifyRe
             return reply.status(401).send({ status: "BAD_AUTH" });
         }
 
+        // Check if group exists
+        const groupExists = await prisma.group.findFirst({
+            where: {
+                id: group_id
+            }
+        });
+
+        if (!groupExists){
+            return reply.status(406).send({ status: "GROUP_NOT_EXISTS" });
+        }
+
         // Check if the account is a member of the specified group
         const isMember = await prisma.groupMember.findFirst({
             where: {

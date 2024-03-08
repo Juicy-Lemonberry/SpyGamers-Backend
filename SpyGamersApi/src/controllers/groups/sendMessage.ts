@@ -57,12 +57,23 @@ export const sendGroupMessage = async (request: FastifyRequest, reply: FastifyRe
         let groupMessageID = -1;
     
         if (isStringEmptyOrWhitespace(content)){
-            return reply.status(406).send({ status: "BAD_AUTH" });
+            return reply.status(406).send({ status: "EMPTY_CONTENT" });
         }
 
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
         if (!account) {
-            return reply.status(401).send({ status: "FAILURE" });
+            return reply.status(401).send({ status: "BAD_AUTH" });
+        }
+
+        // Check if group exists
+        const groupExists = await prisma.group.findFirst({
+            where: {
+                id: group_id
+            }
+        });
+
+        if (!groupExists){
+            return reply.status(406).send({ status: "GROUP_NOT_EXISTS" });
         }
 
         // Check if the sender is a member of the specified group
