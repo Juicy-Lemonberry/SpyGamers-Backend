@@ -58,7 +58,7 @@ export const getGroupMessages = async (request: FastifyRequest, reply: FastifyRe
         const data = messages.map(message => ({
             id: message.id,
             sender_id: message.sender_id,
-            content: message.content,
+            content: message.is_deleted ? "This message was deleted..." : message.content,
             timestamp: message.timestamp,
             is_deleted: message.is_deleted
         }));
