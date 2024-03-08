@@ -16,6 +16,7 @@ services:
     image: postgres:latest
     restart: always
     environment:
+      PGDATA: /var/lib/postgresql/data/pgdata
       POSTGRES_DB: ${POSTGRES_DB_NAME}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -46,8 +47,14 @@ services:
           - PORT=${FLOWWISE_PORT}
           - FLOWISE_USERNAME=${FLOWISE_USERNAME}
           - FLOWISE_PASSWORD=${FLOWISE_PASSWORD}
+          - DATABASE_PATH=/root/.flowise
+          - APIKEY_PATH=/root/.flowise
+          - LOG_PATH=/root/.flowise/logs
+          - SECRETKEY_PATH=/root/.flowise
+          - BLOB_STORAGE_PATH=/root/.flowise/storage
       volumes:
           - "./flowise_data:/root/.flowise:z"
+          - "./flowise_pdfs:/root/flowise_pdfs:z"
       ports:
           - '${FLOWWISE_PORT}:${FLOWWISE_PORT}'
       command: /bin/sh -c "sleep 3; flowise start"
