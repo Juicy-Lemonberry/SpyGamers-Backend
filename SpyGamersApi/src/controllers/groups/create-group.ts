@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { PrismaClient, Prisma } from '@prisma/client';
 import { tryFindAccountBySessionToken } from '../../utils/tryFindAccountBySessionToken';
-import { isStringEmptyOrWhitespace } from '@/utils/isStringEmptyOrWhitespace';
+import { isStringEmptyOrWhitespace } from '../../utils/isStringEmptyOrWhitespace';
 
 const prisma = new PrismaClient();
 
