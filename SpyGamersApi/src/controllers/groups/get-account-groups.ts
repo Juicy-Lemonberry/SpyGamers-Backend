@@ -54,9 +54,9 @@ export const getAccountGroups = async (request: FastifyRequest, reply: FastifyRe
         }
 
         const data = groups.map(group => ({
-            group_id: group.id,
-            group_name: group.name,
-            group_description: group.description
+            id: group.id,
+            name: group.name,
+            description: group.description
         }));
 
         reply.status(200).send({ status: "SUCCESS", result: data });
