@@ -1,12 +1,12 @@
 import { FastifyInstance } from 'fastify';
 
-import { createGroup, createGroupSchema } from '../controllers/groups/create-group';
-import { getAccountGroups, getAccountGroupsSchema } from '../controllers/groups/get-account-groups';
-import { getGroupMessages, getGroupMessagesSchema } from '../controllers/groups/get-group-messages';
-import { getGroupMembers, getGroupMembersSchema } from '../controllers/groups/get-group-members';
-import { sendGroupMessage, sendGroupMessageSchema } from '../controllers/groups/send-group-message';
-import { editGroupMessage, editGroupMessageSchema } from '../controllers/groups/edit-group-message';
-import { deleteGroupMessage, deleteGroupMessageSchema } from '../controllers/groups/delete-group-message';
+import { createGroup, createGroupSchema } from '../controllers/groups/create';
+import { getAccountGroups, getAccountGroupsSchema } from '../controllers/groups/getAccountGroups';
+import { getGroupMessages, getGroupMessagesSchema } from '../controllers/groups/getMessages';
+import { getGroupMembers, getGroupMembersSchema } from '../controllers/groups/getMembers';
+import { sendGroupMessage, sendGroupMessageSchema } from '../controllers/groups/sendMessage';
+import { editGroupMessage, editGroupMessageSchema } from '../controllers/groups/editMessage';
+import { deleteGroupMessage, deleteGroupMessageSchema } from '../controllers/groups/deleteMessage';
 
 export default function (fastify: FastifyInstance, opts: any, done: Function) {
 
