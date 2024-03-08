@@ -18,6 +18,10 @@ export const createGroup = async (request: FastifyRequest, reply: FastifyReply) 
             reply.status(406).send({ status: "EMPTY_GROUP_NAME" });
         }
 
+        if (group_name.length > 128) {
+            reply.status(406).send({ status: "NAME_TOO_LONG" });
+        }
+
         // Create the new group
         const newGroup = await prisma.group.create({
             data: {
@@ -35,7 +39,7 @@ export const createGroup = async (request: FastifyRequest, reply: FastifyReply) 
             }
         })
 
-        reply.status(201).send({ status: "SUCCESS" });
+        reply.status(201).send({ status: "SUCCESS", group_id: newGroup.id });
     } catch (error) {
         reply.status(500).send({ status: "FAILURE" });
     }
