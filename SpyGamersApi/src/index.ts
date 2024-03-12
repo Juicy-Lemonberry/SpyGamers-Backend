@@ -3,6 +3,7 @@ import fastify from 'fastify';
 import { SERVER_SETTINGS } from './config/settings';
 import accountRoutes from './routers/accounts';
 import imageRoutes from './routers/images';
+import groupRoutes from './routers/groups';
 import { ACCOUNT_IMAGE_DIRECTORY, GROUP_IMAGE_DIRECTORY, SPYWARE_IMAGE_DIRECTORY } from './const';
 import * as fs from 'fs';
 
@@ -11,6 +12,7 @@ server.register(require('@fastify/multipart'), { attachFieldsToBody: 'keyValues'
 
 server.register(accountRoutes, { prefix: '/account' });
 server.register(imageRoutes, { prefix: '/image' });
+server.register(groupRoutes, { prefix: '/group'});
 
 const start = async () => {
   try {
