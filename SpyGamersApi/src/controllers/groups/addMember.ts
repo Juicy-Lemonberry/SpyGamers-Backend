@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import { tryFindAccountBySessionToken } from '../../utils/tryFindAccountBySessionToken';
-import { searchFriendship } from '@/utils/searchFriendship';
+import { searchFriendship } from '../../utils/searchFriendship';
 
 const prisma = new PrismaClient();
 

@@ -18,4 +18,4 @@ COPY ./SpyGamersApi .
 EXPOSE 3000
 
 # Run the web service on container startup.
-CMD [ "npn", "run", "dev" ]
+CMD [ "npm", "run", "dev" ]
