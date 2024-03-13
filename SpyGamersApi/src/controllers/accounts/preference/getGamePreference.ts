@@ -4,12 +4,12 @@ import { PrismaClient, Prisma } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export const getGamePreference = async (request: FastifyRequest, reply: FastifyReply) => {
-    const { username } = request.query as { username: string; };
+    const { target_username_id } = request.query as { target_username_id: string; };
 
     try {
         const account = await prisma.account.findUniqueOrThrow({
             where: {
-                username: username,
+                id: parseInt(target_username_id),
             },
         });
 
@@ -43,9 +43,9 @@ export const getGamePreferenceSchema = {
     properties: {
         querystring: {
             type: 'object',
-            required: ['username'],
+            required: ['target_username_id'],
             properties: {
-                username: { type: 'string' }
+                target_username_id: { type: 'number' }
             }
         }
     },
