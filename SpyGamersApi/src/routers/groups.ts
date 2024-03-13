@@ -9,6 +9,7 @@ import { editGroupMessage, editGroupMessageSchema } from '../controllers/groups/
 import { deleteGroupMessage, deleteGroupMessageSchema } from '../controllers/groups/deleteMessage';
 import { addMember, addMemberSchema } from '../controllers/groups/addMember';
 import { removeMember, removeMemberSchema } from '../controllers/groups/removeMember';
+import { toggleMemberAdmin, toggleMemberAdminSchema } from '../controllers/groups/toggleMemberAdmin';
 
 export default function (fastify: FastifyInstance, opts: any, done: Function) {
 
@@ -25,6 +26,7 @@ export default function (fastify: FastifyInstance, opts: any, done: Function) {
   fastify.post('/get-members', {schema: { body: getGroupMembersSchema}}, getGroupMembers);
   fastify.post('/add-member', { schema: {body: addMemberSchema}}, addMember);
   fastify.delete('/remove-member', { schema: { body: removeMemberSchema}}, removeMember);
+  fastify.put('/toggle-admin',  {schema :{ body: toggleMemberAdminSchema}}, toggleMemberAdmin);
 
   done();
 }

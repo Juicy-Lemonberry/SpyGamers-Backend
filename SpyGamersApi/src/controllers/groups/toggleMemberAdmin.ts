@@ -1,10 +1,11 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import { tryFindAccountBySessionToken } from '../../utils/tryFindAccountBySessionToken';
+import { searchFriendship } from '../../utils/searchFriendship';
 
 const prisma = new PrismaClient();
 
-export const removeMember = async (request: FastifyRequest, reply: FastifyReply) => {
+export const toggleMemberAdmin = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
         const { auth_token, group_id, target_user_id } = request.body as { auth_token: string; group_id: number; target_user_id: number; };
 
@@ -47,7 +48,7 @@ export const removeMember = async (request: FastifyRequest, reply: FastifyReply)
             }
         });
 
-        if (targetMember == null) {
+        if (!targetMember) {
             return reply.status(406).send({ status: "TARGET_NOT_MEMBER"})
         }
 
@@ -55,14 +56,22 @@ export const removeMember = async (request: FastifyRequest, reply: FastifyReply)
             return reply.status(406).send({ status: "CANT_TARGET_SELF"})
         }
 
-        await prisma.groupMember.deleteMany({
+        // Add into group...
+        await prisma.groupMember.updateMany({
+            data: {
+                is_admin: !targetMember.is_admin
+            },
             where: {
-                account_id: target_user_id,
-                group_id: group_id
+                account_id: targetMember.account_id,
+                group_id: targetMember.group_id
             }
         })
 
-        reply.status(200).send({ status: "SUCCESS" });
+        if (!targetMember.is_admin) {
+            reply.status(200).send({ status: "ADMIN_ADDED" });
+        } else {
+            reply.status(200).send({ status: "ADMIN_REMOVED" });
+        }
     } catch (error) {
         console.error("Error:", error);
         reply.status(500).send({ status: "FAILURE" });
@@ -70,7 +79,7 @@ export const removeMember = async (request: FastifyRequest, reply: FastifyReply)
 };
 
 
-export const removeMemberSchema = {
+export const toggleMemberAdminSchema = {
     type: 'object',
     required: ['auth_token', 'group_id', 'target_user_id'],
     properties: {
