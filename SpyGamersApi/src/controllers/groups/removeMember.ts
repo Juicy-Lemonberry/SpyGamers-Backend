@@ -1,11 +1,10 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import { tryFindAccountBySessionToken } from '../../utils/tryFindAccountBySessionToken';
-import { searchFriendship } from '../../utils/searchFriendship';
 
 const prisma = new PrismaClient();
 
-export const addMember = async (request: FastifyRequest, reply: FastifyReply) => {
+export const removeMember = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
         const { auth_token, group_id, target_user_id } = request.body as { auth_token: string; group_id: number; target_user_id: number; };
 
@@ -41,30 +40,21 @@ export const addMember = async (request: FastifyRequest, reply: FastifyReply) =>
             return reply.status(406).send({ status: "NOT_GROUP_ADMIN" });
         }
 
-        // Check if target is already a member:
-        const targetIsMember = await prisma.groupMember.findFirst({
+        const targetMember = await prisma.groupMember.findFirst({
             where: {
                 account_id: target_user_id,
                 group_id: group_id
             }
         });
 
-        if (targetIsMember) {
-            return reply.status(406).send({ status: "EXISTING_MEMBER"})
+        if (targetMember == null) {
+            return reply.status(406).send({ status: "TARGET_NOT_MEMBER"})
         }
 
-        // Check if target and user is friends
-        const friendship = await searchFriendship(prisma, account.id, target_user_id);
-        if (friendship == undefined || !friendship.request_accepted) {
-            return reply.status(406).send({ status: "NOT_FRIENDS" })
-        }
-
-        // Add into group...
-        await prisma.groupMember.create({
-            data: {
+        await prisma.groupMember.deleteMany({
+            where: {
                 account_id: target_user_id,
-                group_id: group_id,
-                is_admin: false
+                group_id: group_id
             }
         })
 
@@ -76,7 +66,7 @@ export const addMember = async (request: FastifyRequest, reply: FastifyReply) =>
 };
 
 
-export const addMemberSchema = {
+export const removeMemberSchema = {
     type: 'object',
     required: ['auth_token', 'group_id', 'target_user_id'],
     properties: {

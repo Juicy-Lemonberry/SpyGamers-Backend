@@ -14,6 +14,11 @@ server.register(accountRoutes, { prefix: '/account' });
 server.register(imageRoutes, { prefix: '/image' });
 server.register(groupRoutes, { prefix: '/group'});
 
+server.setErrorHandler((error, request, reply) => {
+  console.error(error);
+  reply.status(500).send({ error: 'Internal Server Error' });
+});
+
 const start = async () => {
   try {
     await server.listen({ port: SERVER_SETTINGS.SERVER_PORT, host: SERVER_SETTINGS.LISTEN_ADDRESS });

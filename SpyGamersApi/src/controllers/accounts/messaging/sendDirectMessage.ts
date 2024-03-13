@@ -27,21 +27,23 @@ async function _storeAttachment(attachmentID: number, attachment: object) {
     return true;
 }
 
+async function _saveAttachment(directMessageID: number, attachment: object) {
+    const newAttachmentStore = await prisma.directMessageAttachment.create({
+        data: {
+            dm_id: directMessageID
+        }
+    });
+
+    return {
+        status: await _storeAttachment(newAttachmentStore.id, attachment),
+        attachmentID: newAttachmentStore.id
+    }
+}
+
 async function _tryStoreAttachments(directMessageID: number, attachments: object[]) {
     await fs.promises.mkdir(DIRECT_MESSAGE_IMAGE_DIRECTORY, { recursive: true });
 
-    const attachmentPromises = attachments.map(async (attachment) => {
-        const newAttachmentStore = await prisma.directMessageAttachment.create({
-            data: {
-                dm_id: directMessageID
-            }
-        });
-
-        return {
-            status: await _storeAttachment(newAttachmentStore.id, attachment),
-            attachmentID: newAttachmentStore.id
-        }
-    });
+    const attachmentPromises = attachments.map(async (attachment) => await _saveAttachment(directMessageID, attachment));
 
     return await Promise.all(attachmentPromises);
 }
@@ -52,7 +54,7 @@ export const sendDirectMessage = async (request: FastifyRequest, reply: FastifyR
             auth_token: string;
             target_username: string;
             content: string;
-            attachments?: object[];
+            attachments?: object | object[];
         };
 
         let directMessageID = -1;
@@ -97,8 +99,10 @@ export const sendDirectMessage = async (request: FastifyRequest, reply: FastifyR
             return reply.status(201).send({ status: "SUCCESS" });
         }
 
+        // Convert single attachment to array
+        const attachmentArray = Array.isArray(attachments) ? attachments : [attachments];
         // There are attachments to store...
-        const storeResults = await _tryStoreAttachments(directMessageID, attachments);
+        const storeResults = await _tryStoreAttachments(directMessageID, attachmentArray);
 
         // Check if storing the attachments failed
         let storeSuccess = true;

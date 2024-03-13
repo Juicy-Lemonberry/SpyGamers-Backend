@@ -49,11 +49,12 @@ export const sendGroupMessage = async (request: FastifyRequest, reply: FastifyRe
     try {
         const { auth_token, group_id, content, attachments } = request.body as { 
             auth_token: string;
-            group_id: number;
+            group_id: string;
             content: string;
-            attachments?: object[];
+            attachments?: object | object[];
         };
 
+        const group_id_int = parseInt(group_id);
         let groupMessageID = -1;
     
         if (isStringEmptyOrWhitespace(content)){
@@ -68,7 +69,7 @@ export const sendGroupMessage = async (request: FastifyRequest, reply: FastifyRe
         // Check if group exists
         const groupExists = await prisma.group.findFirst({
             where: {
-                id: group_id
+                id: group_id_int
             }
         });
 
@@ -80,7 +81,7 @@ export const sendGroupMessage = async (request: FastifyRequest, reply: FastifyRe
         const isMember = await prisma.groupMember.findFirst({
             where: {
                 account_id: account.id,
-                group_id: group_id
+                group_id: group_id_int
             }
         });
 
@@ -92,7 +93,7 @@ export const sendGroupMessage = async (request: FastifyRequest, reply: FastifyRe
         const newGroupMessage = await prisma.groupMessage.create({
             data: {
                 sender_id: account.id,
-                group_id: group_id,
+                group_id: group_id_int,
                 content: content
             }
         });
@@ -108,8 +109,10 @@ export const sendGroupMessage = async (request: FastifyRequest, reply: FastifyRe
             return reply.status(201).send({ status: "SUCCESS", result: result });
         }
 
+        // Convert single attachment to array
+        const attachmentArray = Array.isArray(attachments) ? attachments : [attachments];
         // There are attachments to store...
-        const storeResults = await _tryStoreAttachments(groupMessageID, attachments);
+        const storeResults = await _tryStoreAttachments(groupMessageID, attachmentArray);
 
         // Check if storing the attachments failed
         let storeSuccess = true;

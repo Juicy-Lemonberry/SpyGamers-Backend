@@ -8,6 +8,7 @@ import { sendGroupMessage, sendGroupMessageSchema } from '../controllers/groups/
 import { editGroupMessage, editGroupMessageSchema } from '../controllers/groups/editMessage';
 import { deleteGroupMessage, deleteGroupMessageSchema } from '../controllers/groups/deleteMessage';
 import { addMember, addMemberSchema } from '../controllers/groups/addMember';
+import { removeMember, removeMemberSchema } from '../controllers/groups/removeMember';
 
 export default function (fastify: FastifyInstance, opts: any, done: Function) {
 
@@ -23,6 +24,7 @@ export default function (fastify: FastifyInstance, opts: any, done: Function) {
   // Members management...
   fastify.post('/get-members', {schema: { body: getGroupMembersSchema}}, getGroupMembers);
   fastify.post('/add-member', { schema: {body: addMemberSchema}}, addMember);
+  fastify.delete('/remove-member', { schema: { body: removeMemberSchema}}, removeMember);
 
   done();
 }
