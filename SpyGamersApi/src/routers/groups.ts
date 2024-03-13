@@ -11,6 +11,7 @@ import { addMember, addMemberSchema } from '../controllers/groups/addMember';
 import { removeMember, removeMemberSchema } from '../controllers/groups/removeMember';
 import { toggleMemberAdmin, toggleMemberAdminSchema } from '../controllers/groups/toggleMemberAdmin';
 import { setIcon, setIconSchema } from '../controllers/groups/setIcon';
+import { changeInformationSchema, changeInformation } from '../controllers/groups/changeInformation';
 
 export default function (fastify: FastifyInstance, opts: any, done: Function) {
 
@@ -31,6 +32,7 @@ export default function (fastify: FastifyInstance, opts: any, done: Function) {
 
   // Group Management Related
   fastify.put('/set-icon', { schema: {body: setIconSchema}}, setIcon);
+  fastify.put('/change-information', {schema: { body:changeInformationSchema}}, changeInformation)
 
   done();
 }

@@ -1,7 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { PrismaClient, Prisma } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { tryFindAccountBySessionToken } from '../../utils/tryFindAccountBySessionToken';
-import { isStringEmptyOrWhitespace } from '../../utils/isStringEmptyOrWhitespace';
 
 const prisma = new PrismaClient();
 
@@ -56,7 +55,7 @@ export const getAccountGroups = async (request: FastifyRequest, reply: FastifyRe
         const data = groups.map(group => ({
             id: group.id,
             name: group.name,
-            description: group.description
+            description: (group.description == null) ? "" : group.description
         }));
 
         reply.status(200).send({ status: "SUCCESS", result: data });
