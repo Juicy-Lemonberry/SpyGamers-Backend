@@ -13,7 +13,7 @@ export async function tryFindAccountBySessionToken(sessionToken: string, prismaC
 
     const account = await prismaClient.account.findUnique({
         where: {
-        id: session.accountId,
+            id: session.accountId,
         },
     });
 
