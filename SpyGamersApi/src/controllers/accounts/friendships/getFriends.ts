@@ -9,7 +9,7 @@ export const getFriends = async (request: FastifyRequest, reply: FastifyReply) =
     try {
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
         if (!account) {
-            return reply.status(401).send({ status: "FAILURE" });
+            return reply.status(401).send({ status: "BAD_AUTH" });
         }
 
         const friendships = await prisma.friendship.findMany({
@@ -29,6 +29,7 @@ export const getFriends = async (request: FastifyRequest, reply: FastifyReply) =
                     id: isRequestorOfFriendship ? friendship.account_2_id : friendship.account_1_id
                 },
                 select: {
+                    id: true,
                     username: true
                 }
             });
@@ -41,6 +42,7 @@ export const getFriends = async (request: FastifyRequest, reply: FastifyReply) =
             }
             
             return {
+                account_id: friendAccount?.id,
                 username: friendAccount?.username,
                 status: friendshipStatus
             };

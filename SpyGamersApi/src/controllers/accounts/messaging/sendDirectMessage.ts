@@ -50,9 +50,9 @@ async function _tryStoreAttachments(directMessageID: number, attachments: object
 
 export const sendDirectMessage = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-        const { auth_token, target_username, content, attachments } = request.body as { 
+        const { auth_token, target_account_id, content, attachments } = request.body as { 
             auth_token: string;
-            target_username: string;
+            target_account_id: string;
             content: string;
             attachments?: object | object[];
         };
@@ -65,12 +65,12 @@ export const sendDirectMessage = async (request: FastifyRequest, reply: FastifyR
 
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
         if (!account) {
-            return reply.status(401).send({ status: "FAILURE" });
+            return reply.status(401).send({ status: "BAD_AUTH" });
         }
 
         const targetAccount = await prisma.account.findFirst({
             where: {
-                username: target_username
+                id: parseInt(target_account_id)
             }
         });
 
@@ -147,7 +147,7 @@ export const sendDirectMessage = async (request: FastifyRequest, reply: FastifyR
 export const sendDirectMessageSchema = {
     body: {
         type: 'object',
-        required: ['auth_token', 'target_username', 'content'],
+        required: ['auth_token', 'target_account_id', 'content'],
         properties: {
         attachments: {
             type: 'array',
@@ -163,8 +163,8 @@ export const sendDirectMessageSchema = {
         auth_token: {
             type: 'string'
         },
-        target_username: {
-            type: 'string'
+        target_account_id: {
+            type: 'number'
         },
         content: {
             type: 'string'

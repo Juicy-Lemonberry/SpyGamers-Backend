@@ -15,7 +15,7 @@ export const setIcon = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
         if (!account) {
-            return reply.status(401).send({ status: "AUTH_FAILURE" });
+            return reply.status(401).send({ status: "BAD_AUTH" });
         }
 
         const group_id_int = parseInt(group_id);

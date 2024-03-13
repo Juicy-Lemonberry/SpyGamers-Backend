@@ -15,7 +15,7 @@ export const changeProfilePicture = async (request: FastifyRequest, reply: Fasti
     try {
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
         if (!account) {
-            return reply.status(401).send({ status: "FAILURE" });
+            return reply.status(401).send({ status: "BAD_AUTH" });
         }
 
         const pictureAsEncoded = profile_picture as unknown as string;

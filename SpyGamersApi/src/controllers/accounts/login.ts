@@ -37,7 +37,7 @@ export const login = async (request: FastifyRequest, reply: FastifyReply) => {
         });
 
 
-        reply.status(201).send({ status: "SUCCESS", session_token: sessionToken });
+        reply.status(201).send({ status: "SUCCESS", session_token: sessionToken, account_id: account.id  });
     } catch (error) {
         if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
             return reply.status(404).send({ status: `USERNAME_INVALID` });

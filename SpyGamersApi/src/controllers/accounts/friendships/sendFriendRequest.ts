@@ -6,16 +6,16 @@ import { searchFriendship } from '../../../utils/searchFriendship';
 const prisma = new PrismaClient();
 
 export const sendFriendRequest = async (request: FastifyRequest, reply: FastifyReply) => {
-    const { auth_token, target_username } = request.body as { auth_token: string; target_username: string; };
+    const { auth_token, target_account_id } = request.body as { auth_token: string; target_account_id: number; };
     try {
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
         if (!account) {
-            return reply.status(401).send({ status: "FAILURE" });
+            return reply.status(401).send({ status: "BAD_AUTH" });
         }
 
         const target_account = await prisma.account.findFirst({
             where: {
-                username: target_username
+                id: target_account_id
             }
         });
 
@@ -83,9 +83,9 @@ export const sendFriendRequest = async (request: FastifyRequest, reply: FastifyR
 
 export const sendFriendRequestSchema = {
     type: 'object',
-    required: ['auth_token', 'target_username'],
+    required: ['auth_token', 'target_account_id'],
     properties: {
         auth_token: { type: 'string' },
-        target_username: { type: 'string' }
+        target_account_id: { type: 'number' }
     },
 };

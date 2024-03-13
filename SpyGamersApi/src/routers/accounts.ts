@@ -22,7 +22,7 @@ export default function (fastify: FastifyInstance, opts: any, done: Function) {
   // Base stuff
   fastify.post('/register', { schema: { body: registerController.registerSchema } }, registerController.register);
   fastify.post('/login', { schema: { body: loginController.loginSchema } }, loginController.login);
-  fastify.get('/search-user', { schema: { querystring: searchUserController.searchUserSchema } }, searchUserController.searchUser);
+  fastify.get('/search-users', { schema: { querystring: searchUserController.searchUsersSchema } }, searchUserController.searchUsers);
 
   // User configurations...
   fastify.put('/change-profile-picture', { schema: { body: changeProfilePictureController.changeProfilePictureSchema }}, changeProfilePictureController.changeProfilePicture);

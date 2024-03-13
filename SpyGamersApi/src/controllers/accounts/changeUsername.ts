@@ -9,7 +9,7 @@ export const changeUsername = async (request: FastifyRequest, reply: FastifyRepl
     try {
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
         if (!account) {
-            return reply.status(401).send({ status: "FAILURE" });
+            return reply.status(401).send({ status: "BAD_AUTH" });
         }
 
         const existingUser = await prisma.account.findFirst({

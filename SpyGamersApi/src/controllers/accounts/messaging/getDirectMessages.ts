@@ -56,9 +56,9 @@ async function _getSentMessagesBeforeMessageId(accountAId: number, accountBId: n
 }
 
 export const getDirectMessages = async (request: FastifyRequest, reply: FastifyReply) => {
-    let { auth_token, target_username, chunk_size, start_id } = request.body as {
+    let { auth_token, target_account_id, chunk_size, start_id } = request.body as {
         auth_token: string;
-        target_username: string;
+        target_account_id: number;
         chunk_size?: number;
         start_id?: number;
     };
@@ -68,12 +68,12 @@ export const getDirectMessages = async (request: FastifyRequest, reply: FastifyR
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
         console.log(auth_token)
         if (!account) {
-            return reply.status(401).send({ status: "FAILURE" });
+            return reply.status(401).send({ status: "BAD_AUTH" });
         }
 
         const targetAccount = await prisma.account.findFirst({
             where: {
-                username: target_username
+                id: target_account_id
             }
         });
 
@@ -116,10 +116,10 @@ export const getDirectMessages = async (request: FastifyRequest, reply: FastifyR
 
 export const getDirectMessagesSchema = {
     type: 'object',
-    required: ['auth_token', 'target_username'],
+    required: ['auth_token', 'target_account_id'],
     properties: {
         auth_token: { type: 'string' },
-        target_username: { type: 'string' },
+        target_account_id: { type: 'number' },
         chunk_size: { type: 'number' },
         start_id: { type: 'number' }
     },
