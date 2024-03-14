@@ -3,7 +3,7 @@ import { PrismaClient, Prisma } from '@prisma/client';
 import { DIRECT_MESSAGE_IMAGE_DIRECTORY, GROUP_IMAGE_DIRECTORY } from '../../const';
 import fsPromise from 'fs/promises';
 import * as fs from 'fs';
-import { tryFindAccountBySessionToken } from '@/utils/tryFindAccountBySessionToken';
+import { tryFindAccountBySessionToken } from '../../utils/tryFindAccountBySessionToken';
 
 const path = require('path');
 const prisma = new PrismaClient();

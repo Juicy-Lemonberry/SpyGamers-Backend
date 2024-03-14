@@ -9,7 +9,6 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
     }
   },
   "include": ["src/**/*"]
