@@ -1,5 +1,6 @@
 export const SERVER_SETTINGS = {
     SERVER_PORT: parseInt(process.env.SPYGAMERS_SERVER_PORT as string),
+    SERVER_INITIAL_ROUTE_PATH: process.env.SPYGAMERS_INITIAL_ROUTE_PATH,
     LISTEN_ADDRESS: '0.0.0.0'
 };
 

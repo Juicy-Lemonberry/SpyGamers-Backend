@@ -10,9 +10,10 @@ import * as fs from 'fs';
 const server = fastify({ logger: true });
 server.register(require('@fastify/multipart'), { attachFieldsToBody: 'keyValues' });
 
-server.register(accountRoutes, { prefix: '/account' });
-server.register(imageRoutes, { prefix: '/image' });
-server.register(groupRoutes, { prefix: '/group'});
+const routePrefix = SERVER_SETTINGS.SERVER_INITIAL_ROUTE_PATH == undefined ? "" : SERVER_SETTINGS.SERVER_INITIAL_ROUTE_PATH;
+server.register(accountRoutes, { prefix: `${routePrefix}/account` });
+server.register(imageRoutes, { prefix: `${routePrefix}/image` });
+server.register(groupRoutes, { prefix: `${routePrefix}/group` });
 
 server.setErrorHandler((error, request, reply) => {
   console.error(error);

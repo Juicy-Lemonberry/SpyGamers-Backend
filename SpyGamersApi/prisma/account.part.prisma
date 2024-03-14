@@ -1,9 +1,10 @@
 model Account {
-  id        Int       @id @default(autoincrement())
-  username  String    @unique @db.VarChar(128)
-  email     String    @unique @db.VarChar(256)
-  password  String
+  id         Int       @id @default(autoincrement())
+  username   String    @unique @db.VarChar(128)
+  email      String    @unique @db.VarChar(256)
+  password   String
   created_at DateTime @default(now())
+  is_bot Boolean  @default(false)
 
   sessions  Session[]
   timezone  AccountTimeZone?
