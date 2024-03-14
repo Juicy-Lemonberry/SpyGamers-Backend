@@ -1,0 +1,44 @@
+# Use this for actual production...
+
+version: '3.8'
+services:
+  api:
+    build:
+      context: .
+      dockerfile: DockerfileProduction
+    ports:
+      - ${SPYGAMERS_SERVER_PORT}:${SPYGAMERS_SERVER_PORT}
+    depends_on:
+      - db
+    environment:
+      SPYGAMERS_DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB_NAME}
+      SPYGAMERS_SERVER_PORT: ${SPYGAMERS_SERVER_PORT}
+      SPYGAMERS_INITIAL_ROUTE_PATH: ${SPYGAMERS_INITIAL_ROUTE_PATH}
+    volumes:
+      - "./images:/app/images:z"
+      - "./SpyGamersApi:/app:z"
+
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_DB: ${POSTGRES_DB_NAME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - "./pgdata:/var/lib/postgresql/data:z"
+  
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_LISTEN_PORT: 4321
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    depends_on:
+      - db
+    ports:
+      - ${PGADMIN_PORT}:4321

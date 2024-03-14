@@ -9,13 +9,13 @@ WORKDIR /usr/src/app
 # Copying this separately prevents re-running npm install on every code change.
 COPY ./SpyGamersApi/package*.json ./
 
-# Install dependencies.
-RUN npm install
+# Install production dependencies.
+RUN npm install --omit=dev
 
 # Copy local code to the container image.
 COPY ./SpyGamersApi .
 
-EXPOSE 3000
+RUN npm run build
 
 # Run the web service on container startup.
-CMD [ "npm", "run", "dev" ]
+CMD [ "node", "dist/index.js" ]
