@@ -30,7 +30,8 @@ export const searchUsers = async (request: FastifyRequest, reply: FastifyReply) 
             result: users.map(user => ({
                 id: user.id,
                 username: user.username,
-                date_created: user.created_at
+                date_created: user.created_at,
+                timezone_code: user.timezone_code
             }))
         });
     } catch (error) {
