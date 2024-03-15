@@ -9,6 +9,7 @@ import { DIRECT_MESSAGE_IMAGE_DIRECTORY } from '../../../const'
 import { searchFriendship } from '../../../utils/searchFriendship';
 import { isStringEmptyOrWhitespace } from '../../../utils/isStringEmptyOrWhitespace';
 import { deleteFilesWithName } from '../../../utils/deleteFilesWithName';
+import BotReplyDM from '../../../service/botReplyDM';
 
 const prisma = new PrismaClient();
 
@@ -95,6 +96,12 @@ export const sendDirectMessage = async (request: FastifyRequest, reply: FastifyR
 
         directMessageID = newDirectmessage.id;
         if (!attachments) {
+            if (targetAccount.is_bot) {
+                BotReplyDM(targetAccount.id, account.id, content)
+                .then((result) => {})
+                .catch((error) => console.error("Unhandled Error when replying to bot's DM :: ", error))
+            }
+
             // No attachments included, end.
             return reply.status(201).send({ status: "SUCCESS" });
         }
@@ -114,6 +121,12 @@ export const sendDirectMessage = async (request: FastifyRequest, reply: FastifyR
         }
 
         if (storeSuccess) {
+            if (targetAccount.is_bot) {
+                BotReplyDM(targetAccount.id, account.id, content)
+                .then((result) => {})
+                .catch((error) => console.error("Unhandled Error when replying to bot's DM :: ", error))
+            }
+
             return reply.status(201).send({ status: "SUCCESS" });
         }
 

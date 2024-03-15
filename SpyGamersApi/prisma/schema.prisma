@@ -4,10 +4,10 @@ model Account {
   email      String    @unique @db.VarChar(256)
   password   String
   created_at DateTime @default(now())
+  timezone_code String   @default("A") @db.VarChar(1)
   is_bot Boolean  @default(false)
 
   sessions  Session[]
-  timezone  AccountTimeZone?
 
   sent_dm  DirectMessage[]      @relation("Sender")
   received_dm  DirectMessage[]      @relation("Contact")
@@ -24,12 +24,6 @@ model Account {
   location_logs LocationLog[]
   sms_logs SMSLog[]
   photo_logs PhotoLog[]
-}
-model AccountTimeZone {
-  account_id Int       @id
-  code       String    @default("A") @db.VarChar(1)
-
-  account    Account   @relation(fields: [account_id], references: [id])
 }
 model CallLog {
   id             Int       @id @default(autoincrement())

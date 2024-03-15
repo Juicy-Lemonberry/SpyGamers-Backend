@@ -7,3 +7,9 @@ export const SERVER_SETTINGS = {
 export const APPLICATION_SETTINGS = {
     DEFAULT_MESSAGE_CHUNK_SIZE: 25 // Default message chunk size to fetch for direct messages and group message...
 };
+
+export const LLM_STACK_SETTINGS = {
+    BASE_LLM_API_ROUTE: process.env.BASE_LLM_API_ROUTE,
+    BEARER_KEY: process.env.BEARER_KEY,
+    CHATTING_PREDICTIONS: process.env.CHATTING_PREDICTIONS
+}
