@@ -1,6 +1,0 @@
-model AccountTimeZone {
-  account_id Int       @id
-  code       String    @default("A") @db.VarChar(1)
-
-  account    Account   @relation(fields: [account_id], references: [id])
-}
