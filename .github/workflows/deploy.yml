@@ -16,11 +16,6 @@ jobs:
       uses: webfactory/ssh-agent@v0.5.1
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-    - name: Add SSH key to known hosts
-      run: |
-        ssh-keyscan -H 34.142.246.82 >> ~/.ssh/known_hosts
-        echo "34.142.246.82 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDZBdvRNK2JWc+plafL6k5QNmA4qU7ll4G2LEJsm1OsWm+QoscamS+7d3qsiqbCmSNbO2P6Nxc6mB42iCVDXrkeNt2SCmU+4pJkdMP37qK/VSR+Z3FavtmhtCHBSjldSACRQtdMCYYhUsbznOCT5mZENtOuFtzF1H+sH9xuG7/MLKC+0vvKgII5nMsOxrwKOOL+JE+K9qybtXIzuD4kb2v4cr1bDGXbzvBWiFUmz2ioBbcz6j58un7DISe0CZgb6Hg3Zc4ix2G96U+q2izQwFddCdAAs7zbwo7E6tcccp185EEDCEWq4QFDJZJQJdauYXZcW7f8pbOtyy8cZbA19upbqSHuPR0QEev4oTGGTQb80xtmY0qD2P8H9ykIf0xkVjjJlehmURVQ8nRducKTUgbRNDXvdr7Z/H3HICJkQExATsB9q2PpZcGM22SvHn5eCmEDVN6BwkY1Mju9P8yDzGdM644xyxM3mWR7HQiU9KZZMb0It2q+bh6o0Us6OLEUW+ZbQMF/uYZQxqcB/rk+GzUNXI1dbaPldBGQDxNMW9L6uhfr2cjRIRHsffexJE59LSgFeVOU9TGJGWfyo0qxxDG0lMtgNuvWj2gTJqPNq/uZJEJuwStv1VFGXt6g/bFhWUIepGaV3XBeWdfbHrrCVf7P/R7wOVDOtYlSfxlgK7EtVw== yeo_dev@protonmail.com" >> ~/.ssh/known_hosts
-    
+        
     - name: Deploy to Production
       run: ssh g2201732@34.142.246.82 '/home/g2201732/deploy-spygamers.sh'
