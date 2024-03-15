@@ -2,19 +2,21 @@
 import { PrismaClient, Prisma } from '@prisma/client';
 const prisma = new PrismaClient();
 
-import { LLM_STACK_SETTINGS } from 'src/config/settings';
-import { isStringEmptyOrWhitespace } from 'src/utils/isStringEmptyOrWhitespace';
-import { searchFriendship } from 'src/utils/searchFriendship';
+import { isStringEmptyOrWhitespace } from '../utils/isStringEmptyOrWhitespace';
+import { searchFriendship } from '../utils/searchFriendship';
+import { UseLLMChat } from '../utils/useLLMChat';
 
 /**
  * Use this function to get a bot to reply back to a DM...
  */
 export default async function BotReplyDM(botID: number, userID: number, userMessage: string) {
-    if (!LLM_STACK_SETTINGS.BASE_LLM_API_ROUTE || !LLM_STACK_SETTINGS.BEARER_KEY || !LLM_STACK_SETTINGS.CHATTING_PREDICTIONS) {
-        return false;
-    }
-
     try {
+
+        if (isStringEmptyOrWhitespace(userMessage)) {
+            console.warn("Cant reply to an empty content!")
+            return false;
+        }
+
         const userAccount = await prisma.account.findFirst({
             where: {
                 id: userID
@@ -28,52 +30,40 @@ export default async function BotReplyDM(botID: number, userID: number, userMess
         });
 
         // Bot or User dont exists, or message is blank...
-        if (!botAccount || !userAccount || isStringEmptyOrWhitespace(userMessage)) {
+        if (!botAccount || !userAccount) {
+            console.warn("Bot or User does not exists!")
             return false;
         }
 
         // Dont reply if not a bot, and dont reply to a bot...
         if (!botAccount.is_bot || userAccount.is_bot) {
+            console.warn("Either self is not bot, or target is a bot!")
             return false;
         }
 
         const friendShip = await searchFriendship(prisma, botID, userID);
         // Not friends, dont reply...
         if (!friendShip || !friendShip.request_accepted) {
+            console.warn("Bot and User are not friends!")
             return false;
         }
 
-        const queryData = {
-            "question": userMessage,
-            "overrideConfig": {
-                "sessionId": `${botID}-${userID}`
-            }
+        const result = await UseLLMChat(`${botID}-${userID}`, userMessage);
+        if (!result.success){
+            return false;
         }
-
-        const response = await fetch(
-            `${LLM_STACK_SETTINGS.BASE_LLM_API_ROUTE}/${LLM_STACK_SETTINGS.CHATTING_PREDICTIONS}`,
-            {
-                headers: {
-                    Authorization: `Bearer ${LLM_STACK_SETTINGS.BEARER_KEY}`,
-                    "Content-Type": "application/json"
-                },
-                method: "POST",
-                body: JSON.stringify(queryData)
-            }
-        );
-
-        const result = await response.json();
+        
         await prisma.directMessage.create({
             data: {
                 sender_id: botID,
                 contact_id: userID,
-                content: result.text
+                content: result.content
             }
         });
 
         return true;
     } catch (error) {
-        console.log("Failed to query LLM Stack", error)
+        console.log("Failed to query LLM Stack :: ", error)
         return false;
     }
 }
