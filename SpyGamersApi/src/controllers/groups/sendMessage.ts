@@ -8,6 +8,7 @@ import { tryGetFileImageExtension } from '../../utils/tryGetFileImageExtension';
 import { isStringEmptyOrWhitespace } from '../../utils/isStringEmptyOrWhitespace';
 import { deleteFilesWithName } from '../../utils/deleteFilesWithName';
 import { GROUP_IMAGE_DIRECTORY } from '../../const';
+import BotReplyGroup from '../../service/botReplyGroup';
 
 const prisma = new PrismaClient();
 
@@ -43,6 +44,33 @@ async function _tryStoreAttachments(groupMessageID: number, attachments: object[
     });
 
     return await Promise.all(attachmentPromises);
+}
+
+async function _getRandomBotToReply(groupID: number, message: string) {
+    const accounts = await prisma.account.findMany({
+        where: {
+            is_bot: true,
+            group_members: {
+                some: {
+                    group_id: groupID
+                }
+            }
+        },
+        select: {
+            id: true
+        }
+    });
+
+    // No bot in group...
+    if (accounts.length === 0) {
+        return;
+    }
+
+    // Pick a random bot in group, and let it reply...
+    const randomIndex = Math.floor(Math.random() * accounts.length);
+    const randomAccount = accounts[randomIndex];
+
+    BotReplyGroup(randomAccount.id, groupID, message);
 }
 
 export const sendGroupMessage = async (request: FastifyRequest, reply: FastifyReply) => {
@@ -106,6 +134,7 @@ export const sendGroupMessage = async (request: FastifyRequest, reply: FastifyRe
                 timestamp: newGroupMessage.timestamp
             }
 
+            _getRandomBotToReply(group_id_int, content);
             return reply.status(201).send({ status: "SUCCESS", result: result });
         }
 
@@ -135,6 +164,7 @@ export const sendGroupMessage = async (request: FastifyRequest, reply: FastifyRe
                 attachment_ids: attachment_ids
             }
 
+            _getRandomBotToReply(group_id_int, content);
             return reply.status(201).send({ status: "SUCCESS", result: result });
         }
 

@@ -17,7 +17,8 @@ export const searchUsers = async (request: FastifyRequest, reply: FastifyReply) 
             select: {
                 id: true,
                 username: true,
-                created_at: true
+                created_at: true,
+                timezone_code: true
             }
         });
 
