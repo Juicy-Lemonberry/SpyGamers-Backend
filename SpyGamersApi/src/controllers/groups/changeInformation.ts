@@ -7,11 +7,12 @@ const prisma = new PrismaClient();
 
 export const changeInformation = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-        let { auth_token, group_id, group_name, description } = request.body as { 
+        let { auth_token, group_id, group_name, description, public_status } = request.body as { 
             auth_token: string;
             group_id: number;
             group_name?: string;
             description?: string;
+            public_status?: boolean
         };
 
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
@@ -46,7 +47,7 @@ export const changeInformation = async (request: FastifyRequest, reply: FastifyR
             return reply.status(406).send({ status: "NOT_GROUP_ADMIN" });
         }
 
-        if (!description && !group_name) {
+        if (!description && !group_name && !public_status)  {
             return reply.status(201).send({ status: "NOTHING_CHANGED" });
         }
 
@@ -61,7 +62,8 @@ export const changeInformation = async (request: FastifyRequest, reply: FastifyR
         await prisma.group.updateMany({
             data: {
                 name: group_name,
-                description: description
+                description: description,
+                is_public: !public_status ? groupExists.is_public : public_status
             },
             where: {
                 id: groupExists.id
@@ -92,6 +94,9 @@ export const changeInformationSchema = {
             },
             group_name: {
                 type: 'string'
+            },
+            public_status: {
+                type: 'boolean'
             }
         }
       }
