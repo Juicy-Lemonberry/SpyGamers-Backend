@@ -50,6 +50,9 @@ async function findSimilarUsersByGamePreference(targetUserId: number) {
 
     const notFriends = await prisma.account.findMany({
         where: {
+            id: {
+                not: targetUserId
+            },
             AND: [
                 {
                     friends_as: {

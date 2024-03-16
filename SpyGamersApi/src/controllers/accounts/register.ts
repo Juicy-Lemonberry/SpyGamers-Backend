@@ -17,15 +17,15 @@ export const register = async (request: FastifyRequest, reply: FastifyReply) => 
     const { username, email, password } = request.body as { username: string; email: string; password: string };
 
     if (password.length < 4) {
-        return reply.status(400).send({ status: "LONG_PASSWORD" });
+        return reply.status(400).send({ status: "PASSWORD_TOO_SHORT" });
     }
 
     if (password.length > 16) {
-        return reply.status(400).send({ status: "SHORT_PASSWORD" });
+        return reply.status(400).send({ status: "PASSWORD_TOO_LONG" });
     }
 
     if (username.length > 128) {
-        return reply.status(400).send({ status: "LONG_USERNAME" });
+        return reply.status(400).send({ status: "USERNAME_TOO_LONG" });
     }
 
     if (!regexValidateEmail(email)) {
@@ -33,7 +33,7 @@ export const register = async (request: FastifyRequest, reply: FastifyReply) => 
     }
 
     if (email.length > 256) {
-        return reply.status(400).send({ status: "LONG_EMAIL" });
+        return reply.status(400).send({ status: "EMAIL_TOO_LONG" });
     }
 
     // TODO: SMTP to verify email?

@@ -48,8 +48,6 @@ async function recommendGroupsForUser(accountId: number): Promise<RecommendedGro
   });
   
     const recommendations: RecommendedGroup[] = [];
-  
-    const allPromises = []
     groups.forEach((group) => {
         const newRecommendation: RecommendedGroup = {
             id: group.id,
@@ -67,14 +65,14 @@ async function recommendGroupsForUser(accountId: number): Promise<RecommendedGro
 
 export const recommedGroups = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-        const { auth_token } = request.body as { auth_token: string; };
+        const { auth_token, chunk_size = 10 } = request.body as { auth_token: string; chunk_size?: number; };
 
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
         if (!account) {
             return reply.status(401).send({ status: "BAD_AUTH" });
         }
 
-        const recommendedGroups = await recommendGroupsForUser(account.id);
+        const recommendedGroups = (await recommendGroupsForUser(account.id)).slice(0, chunk_size);
         return { status: "SUCCESS", result: recommendedGroups }
     } catch (error) {
         console.error("Error:", error);
@@ -87,6 +85,7 @@ export const recommedGroupsSchema = {
     type: 'object',
     required: ['auth_token'],
     properties: {
-        auth_token: { type: 'string' }
+        auth_token: { type: 'string' },
+        chunk_size: { type: 'number' }
     },
 };
