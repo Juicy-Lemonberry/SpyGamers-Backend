@@ -1,6 +1,8 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { PrismaClient, Prisma } from '@prisma/client';
 
+import { distance, closest } from 'fastest-levenshtein';
+
 const prisma = new PrismaClient();
 
 export const searchUsers = async (request: FastifyRequest, reply: FastifyReply) => {
@@ -26,14 +28,18 @@ export const searchUsers = async (request: FastifyRequest, reply: FastifyReply) 
             return reply.status(200).send({ status: "NO_USERS_FOUND" });
         }
 
-        reply.status(200).send({ 
-            status: "SUCCESS",
-            result: users.map(user => ({
+        const resultData = users
+            .map(user => ({
                 id: user.id,
                 username: user.username,
                 date_created: user.created_at,
                 timezone_code: user.timezone_code
             }))
+            .sort((a, b) => distance(a.username, username) - distance(b.username, username))
+
+        reply.status(200).send({
+            status: "SUCCESS",
+            result: resultData
         });
     } catch (error) {
         reply.status(500).send({ status: "FAILURE", exists: false });

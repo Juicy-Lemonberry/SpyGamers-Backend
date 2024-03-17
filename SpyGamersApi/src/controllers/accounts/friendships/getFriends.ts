@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import { tryFindAccountBySessionToken } from '../../../utils/tryFindAccountBySessionToken';
+import { distance } from 'fastest-levenshtein';
 
 const prisma = new PrismaClient();
 
@@ -38,8 +39,7 @@ export const getFriends = async (request: FastifyRequest, reply: FastifyReply) =
                                 { account1: { username: { contains: filter } } },
                                 { account2: { username: { contains: filter } } },
                             ],
-                        },
-                        { request_accepted: true },
+                        }
                     ],
                 },
                 include: {
@@ -70,11 +70,15 @@ export const getFriends = async (request: FastifyRequest, reply: FastifyReply) =
             }
 
             return {
-                account_id: friendAccount?.id,
-                username: friendAccount?.username,
+                account_id: friendAccount!.id,
+                username: friendAccount!.username,
                 status: friendshipStatus
             };
         }));
+
+        if (filter) {
+            friendshipDetails.sort((a, b) => distance(a.username, filter) - distance(b.username, filter))
+        }
 
         return reply.status(201).send({ status: "SUCCESS", friends: friendshipDetails });
     } catch (error) {
