@@ -2,9 +2,10 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { PrismaClient, Prisma } from '@prisma/client';
 import { tryFindAccountBySessionToken } from '../../utils/tryFindAccountBySessionToken';
 
-const prisma = new PrismaClient();
 
 export const getGroupMessages = async (request: FastifyRequest, reply: FastifyReply) => {
+    const prisma = new PrismaClient();
+
     try {
         const { auth_token, group_id, chunk_size = 25, start_id } = request.body as { auth_token: string; group_id: number; chunk_size?: number; start_id?: number };
 
@@ -78,6 +79,8 @@ export const getGroupMessages = async (request: FastifyRequest, reply: FastifyRe
     } catch (error) {
         console.error("Error:", error);
         reply.status(500).send({ status: "FAILURE" });
+    } finally {
+        await prisma.$disconnect();
     }
 };
 

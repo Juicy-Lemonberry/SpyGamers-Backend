@@ -3,9 +3,8 @@ import { PrismaClient } from '@prisma/client';
 import { tryFindAccountBySessionToken } from '../../../utils/tryFindAccountBySessionToken';
 import { isStringEmptyOrWhitespace } from '../../../utils/isStringEmptyOrWhitespace';
 
-const prisma = new PrismaClient();
-
 export const editDirectMessage = async (request: FastifyRequest, reply: FastifyReply) => {
+    const prisma = new PrismaClient();
     const { auth_token, message_id, new_content } = request.body as { 
         auth_token: string;
         message_id: number;
@@ -49,6 +48,8 @@ export const editDirectMessage = async (request: FastifyRequest, reply: FastifyR
     } catch (error) {
         console.error("Error:", error);
         return reply.status(500).send({ status: "FAILURE" });
+    } finally {
+        await prisma.$disconnect();
     }
 };
 

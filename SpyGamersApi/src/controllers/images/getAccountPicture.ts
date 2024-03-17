@@ -1,14 +1,10 @@
-import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import { FastifyReply, FastifyRequest } from 'fastify';
 import { PrismaClient, Prisma } from '@prisma/client';
 import { ACCOUNT_IMAGE_DIRECTORY } from '../../const';
 import fsPromise from 'fs/promises';
 import * as fs from 'fs';
-import { tryGetFileImageExtension } from '../../utils/tryGetFileImageExtension';
 
 const path = require('path');
-
-
-const prisma = new PrismaClient();
 
 async function _findFirstPfpFilePath(folderDirectory: string): Promise<string | undefined> {
     try {
@@ -37,9 +33,10 @@ async function _findFirstPfpFilePath(folderDirectory: string): Promise<string | 
 
 
 export const getAccountPicture = async (request: FastifyRequest, reply: FastifyReply) => {
-    const { account_id } = request.query as { account_id: string };
+    const prisma = new PrismaClient();
 
     try {
+        const { account_id } = request.query as { account_id: string };
         const account = await prisma.account.findUniqueOrThrow({
             where: {
                 id: parseInt(account_id),
@@ -64,6 +61,8 @@ export const getAccountPicture = async (request: FastifyRequest, reply: FastifyR
         }
 
         reply.status(500).send({ status: "FAILURE" });
+    } finally {
+        await prisma.$disconnect();
     }
 };
 

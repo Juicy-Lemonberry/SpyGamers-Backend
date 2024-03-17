@@ -1,6 +1,5 @@
 
 import { PrismaClient, Prisma } from '@prisma/client';
-const prisma = new PrismaClient();
 
 import { isStringEmptyOrWhitespace } from '../utils/isStringEmptyOrWhitespace';
 import { searchFriendship } from '../utils/searchFriendship';
@@ -10,6 +9,8 @@ import { UseLLMChat } from '../utils/useLLMChat';
  * Use this function to get a bot to reply back to a DM...
  */
 export default async function BotReplyDM(botID: number, userID: number, userMessage: string) {
+    const prisma = new PrismaClient();
+
     try {
 
         if (isStringEmptyOrWhitespace(userMessage)) {
@@ -65,5 +66,7 @@ export default async function BotReplyDM(botID: number, userID: number, userMess
     } catch (error) {
         console.log("Failed to query LLM Stack :: ", error)
         return false;
+    } finally {
+        await prisma.$disconnect();
     }
 }

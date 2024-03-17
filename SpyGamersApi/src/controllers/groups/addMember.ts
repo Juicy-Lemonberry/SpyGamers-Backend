@@ -3,9 +3,9 @@ import { PrismaClient } from '@prisma/client';
 import { tryFindAccountBySessionToken } from '../../utils/tryFindAccountBySessionToken';
 import { searchFriendship } from '../../utils/searchFriendship';
 
-const prisma = new PrismaClient();
-
 export const addMember = async (request: FastifyRequest, reply: FastifyReply) => {
+    const prisma = new PrismaClient();
+
     try {
         const { auth_token, group_id, target_user_id } = request.body as { auth_token: string; group_id: number; target_user_id: number; };
 
@@ -72,6 +72,8 @@ export const addMember = async (request: FastifyRequest, reply: FastifyReply) =>
     } catch (error) {
         console.error("Error:", error);
         reply.status(500).send({ status: "FAILURE" });
+    } finally {
+        await prisma.$disconnect();
     }
 };
 

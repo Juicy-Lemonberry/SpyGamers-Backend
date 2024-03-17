@@ -2,9 +2,9 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import { tryFindAccountBySessionToken } from '../../../utils/tryFindAccountBySessionToken';
 
-const prisma = new PrismaClient();
-
 export const deleteGamePreference = async (request: FastifyRequest, reply: FastifyReply) => {
+    const prisma = new PrismaClient();
+
     try {
         const { auth_token, preference_id } = request.body as { auth_token: string; preference_id: number; };
 
@@ -37,6 +37,8 @@ export const deleteGamePreference = async (request: FastifyRequest, reply: Fasti
     } catch (error) {
         console.error("Error:", error);
         return reply.status(500).send({ status: "FAILURE" });
+    } finally {
+        await prisma.$disconnect();
     }
 };
 

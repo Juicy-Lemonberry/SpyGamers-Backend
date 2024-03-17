@@ -10,8 +10,6 @@ import { deleteFilesWithName } from '../../utils/deleteFilesWithName';
 import { GROUP_IMAGE_DIRECTORY } from '../../const';
 import BotReplyGroup from '../../service/botReplyGroup';
 
-const prisma = new PrismaClient();
-
 async function _storeAttachment(attachmentID: number, attachment: object) {
     const pictureAsEncoded = attachment as unknown as string;
     const pictureExtension = tryGetFileImageExtension(pictureAsEncoded);
@@ -27,11 +25,11 @@ async function _storeAttachment(attachmentID: number, attachment: object) {
     return true;
 }
 
-async function _tryStoreAttachments(groupMessageID: number, attachments: object[]) {
+async function _tryStoreAttachments(prismaConnection: PrismaClient, groupMessageID: number, attachments: object[]) {
     await fs.promises.mkdir(GROUP_IMAGE_DIRECTORY, { recursive: true });
 
     const attachmentPromises = attachments.map(async (attachment) => {
-        const newAttachmentStore = await prisma.groupMessageAttachment.create({
+        const newAttachmentStore = await prismaConnection.groupMessageAttachment.create({
             data: {
                 message_id: groupMessageID
             }
@@ -46,8 +44,8 @@ async function _tryStoreAttachments(groupMessageID: number, attachments: object[
     return await Promise.all(attachmentPromises);
 }
 
-async function _getRandomBotToReply(groupID: number, message: string) {
-    const accounts = await prisma.account.findMany({
+async function _getRandomBotToReply(prismaConnection: PrismaClient, groupID: number, message: string) {
+    const accounts = await prismaConnection.account.findMany({
         where: {
             is_bot: true,
             group_members: {
@@ -74,6 +72,8 @@ async function _getRandomBotToReply(groupID: number, message: string) {
 }
 
 export const sendGroupMessage = async (request: FastifyRequest, reply: FastifyReply) => {
+    const prisma = new PrismaClient();
+
     try {
         const { auth_token, group_id, content, attachments } = request.body as { 
             auth_token: string;
@@ -134,14 +134,14 @@ export const sendGroupMessage = async (request: FastifyRequest, reply: FastifyRe
                 timestamp: newGroupMessage.timestamp
             }
 
-            _getRandomBotToReply(group_id_int, content);
+            _getRandomBotToReply(prisma, group_id_int, content);
             return reply.status(201).send({ status: "SUCCESS", result: result });
         }
 
         // Convert single attachment to array
         const attachmentArray = Array.isArray(attachments) ? attachments : [attachments];
         // There are attachments to store...
-        const storeResults = await _tryStoreAttachments(groupMessageID, attachmentArray);
+        const storeResults = await _tryStoreAttachments(prisma, groupMessageID, attachmentArray);
 
         // Check if storing the attachments failed
         let storeSuccess = true;
@@ -164,7 +164,7 @@ export const sendGroupMessage = async (request: FastifyRequest, reply: FastifyRe
                 attachment_ids: attachment_ids
             }
 
-            _getRandomBotToReply(group_id_int, content);
+            _getRandomBotToReply(prisma, group_id_int, content);
             return reply.status(201).send({ status: "SUCCESS", result: result });
         }
 
@@ -191,6 +191,8 @@ export const sendGroupMessage = async (request: FastifyRequest, reply: FastifyRe
     } catch (error) {
         console.error("Error:", error);
         return reply.status(500).send({ status: "FAILURE" });
+    } finally {
+        await prisma.$disconnect();
     }
 };
 

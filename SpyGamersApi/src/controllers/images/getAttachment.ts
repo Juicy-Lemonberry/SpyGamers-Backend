@@ -6,7 +6,6 @@ import * as fs from 'fs';
 import { tryFindAccountBySessionToken } from '../../utils/tryFindAccountBySessionToken';
 
 const path = require('path');
-const prisma = new PrismaClient();
 
 async function _findFirstFilePath(folderDirectory: string, uniqueAttachmentName: string): Promise<string | undefined> {
     try {
@@ -30,7 +29,7 @@ async function _findFirstFilePath(folderDirectory: string, uniqueAttachmentName:
     }
 }
 
-async function _handleGroupAttachment(reply: FastifyReply, accountID: number, attachmentID: number) {
+async function _handleGroupAttachment(prisma: PrismaClient, reply: FastifyReply, accountID: number, attachmentID: number) {
     const attachment = await prisma.groupMessageAttachment.findFirst({
         where: {
             id: attachmentID
@@ -76,7 +75,7 @@ async function _handleGroupAttachment(reply: FastifyReply, accountID: number, at
 }
 
 
-async function _handleDirectMessageAttachment(reply: FastifyReply, accountID: number, attachmentID: number) {
+async function _handleDirectMessageAttachment(prisma: PrismaClient, reply: FastifyReply, accountID: number, attachmentID: number) {
     const attachment = await prisma.directMessageAttachment.findFirst({
         where: {
             id: attachmentID
@@ -115,18 +114,18 @@ async function _handleDirectMessageAttachment(reply: FastifyReply, accountID: nu
 }
 
 export const getAttachment = async (request: FastifyRequest, reply: FastifyReply) => {
-    const { attachment_id, auth_token, attachment_type = "DIRECT_MESSAGE" } = request.body as { attachment_id: number; auth_token:string; attachment_type?: string; }
-
+    const prisma = new PrismaClient();
     try {
+        const { attachment_id, auth_token, attachment_type = "DIRECT_MESSAGE" } = request.body as { attachment_id: number; auth_token:string; attachment_type?: string; }
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
         if (account == undefined) {
             return reply.status(401).send({ status: `BAD_AUTH` });
         }
 
         if (attachment_type.trim().toUpperCase() == "GROUP") {
-            return await _handleGroupAttachment(reply, account.id, attachment_id);
+            return await _handleGroupAttachment(prisma, reply, account.id, attachment_id);
         } else if (attachment_type.trim().toUpperCase() == "DIRECT_MESSAGE") {
-            return await _handleDirectMessageAttachment(reply, account.id, attachment_id);
+            return await _handleDirectMessageAttachment(prisma, reply, account.id, attachment_id);
         }
 
         return reply.status(406).send({ status: `UNKNOWN_ATTACHMENT_TYPE` });
@@ -136,6 +135,8 @@ export const getAttachment = async (request: FastifyRequest, reply: FastifyReply
         }
 
         reply.status(500).send({ status: "FAILURE" });
+    } finally {
+        await prisma.$disconnect();
     }
 };
 

@@ -6,9 +6,6 @@ import * as fs from 'fs';
 
 const path = require('path');
 
-
-const prisma = new PrismaClient();
-
 async function _findFirstIconFilePath(folderDirectory: string, groupID: number): Promise<string | undefined> {
     try {
         // Check if the folder exists
@@ -35,9 +32,10 @@ async function _findFirstIconFilePath(folderDirectory: string, groupID: number):
 
 
 export const getGroupIcon = async (request: FastifyRequest, reply: FastifyReply) => {
-    const { group_id } = request.query as { group_id: string };
+    const prisma = new PrismaClient();
 
     try {
+        const { group_id } = request.query as { group_id: string };
         const groupExists = await prisma.group.findFirst({
             where: {
                 id: parseInt(group_id)
@@ -62,6 +60,8 @@ export const getGroupIcon = async (request: FastifyRequest, reply: FastifyReply)
     } catch (error) {
         console.error(error);
         reply.status(500).send({ status: "FAILURE" });
+    } finally {
+        await prisma.$disconnect();
     }
 };
 

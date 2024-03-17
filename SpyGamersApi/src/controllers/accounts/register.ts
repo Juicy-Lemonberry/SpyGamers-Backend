@@ -2,7 +2,6 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import bcrypt from 'bcrypt';
 import { PrismaClient, Prisma } from '@prisma/client';
 
-const prisma = new PrismaClient();
 const saltRounds = 10;
 
 const regexValidateEmail = (email: string) => {
@@ -14,6 +13,7 @@ const regexValidateEmail = (email: string) => {
   };
 
 export const register = async (request: FastifyRequest, reply: FastifyReply) => {
+    
     const { username, email, password } = request.body as { username: string; email: string; password: string };
 
     if (password.length < 4) {
@@ -40,6 +40,7 @@ export const register = async (request: FastifyRequest, reply: FastifyReply) => 
 
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
+    const prisma = new PrismaClient();
     try {
         const account = await prisma.account.create({
             data: {
@@ -60,6 +61,8 @@ export const register = async (request: FastifyRequest, reply: FastifyReply) => 
         }
 
         reply.status(500).send({ status: "FAILURE" });
+    } finally {
+        await prisma.$disconnect();
     }
 };
 

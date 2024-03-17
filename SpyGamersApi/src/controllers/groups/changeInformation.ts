@@ -3,9 +3,9 @@ import { PrismaClient } from '@prisma/client';
 import { tryFindAccountBySessionToken } from '../../utils/tryFindAccountBySessionToken';
 import { isStringEmptyOrWhitespace } from '../../utils/isStringEmptyOrWhitespace';
 
-const prisma = new PrismaClient();
-
 export const changeInformation = async (request: FastifyRequest, reply: FastifyReply) => {
+    const prisma = new PrismaClient();
+
     try {
         let { auth_token, group_id, group_name, description, public_status } = request.body as { 
             auth_token: string;

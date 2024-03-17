@@ -1,12 +1,11 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { PrismaClient, Prisma } from '@prisma/client';
 
-const prisma = new PrismaClient();
-
 export const getGamePreference = async (request: FastifyRequest, reply: FastifyReply) => {
-    const { target_username_id } = request.query as { target_username_id: string; };
+    const prisma = new PrismaClient();
 
     try {
+        const { target_username_id } = request.query as { target_username_id: string; };
         const account = await prisma.account.findUniqueOrThrow({
             where: {
                 id: parseInt(target_username_id),
@@ -34,6 +33,8 @@ export const getGamePreference = async (request: FastifyRequest, reply: FastifyR
         }
 
         reply.status(500).send({ status: "FAILURE", exists: false });
+    } finally {
+        await prisma.$disconnect();
     }
 };
 

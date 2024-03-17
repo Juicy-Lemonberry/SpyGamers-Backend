@@ -5,8 +5,6 @@ import lerp from '../../utils/lerp';
 
 import { distance, closest } from 'fastest-levenshtein';
 
-const prisma = new PrismaClient();
-
 enum SORTING_MODE {
     DEFAULT = "DEFAULT",
     GAME_PREFERENCE = "GAME_PREFERENCE",
@@ -41,7 +39,7 @@ function _getTotalWeightage(recommended: RecommendedFriend) {
     return recommended.game_preference_weightage + recommended.same_group_weightage + recommended.timezone_weightage;
 }
 
-async function findSimilarUsersByGamePreference(targetUserId: number) {
+async function findSimilarUsersByGamePreference(prisma:PrismaClient, targetUserId: number) {
     const targetUserGames = await prisma.gamePreference.findMany({
         where: {
             account_id: targetUserId,
@@ -100,7 +98,7 @@ async function findSimilarUsersByGamePreference(targetUserId: number) {
     return similarityScores;
 }
 
-async function getFriendRecommendations(targetUserId: number, sortingMode: SORTING_MODE, chunkSize: number): Promise<RecommendedFriend[]> {
+async function getFriendRecommendations(prisma:PrismaClient, targetUserId: number, sortingMode: SORTING_MODE, chunkSize: number): Promise<RecommendedFriend[]> {
     try {
         // Fetch the target user's game preferences
         const targetUser = await prisma.account.findUnique({
@@ -207,7 +205,7 @@ async function getFriendRecommendations(targetUserId: number, sortingMode: SORTI
         }
 
         // Find same game preferences...
-        const sameGamePreference = findSimilarUsersByGamePreference(targetUserId).then((recommendeds) => {
+        const sameGamePreference = findSimilarUsersByGamePreference(prisma, targetUserId).then((recommendeds) => {
             recommendeds.forEach((recommended) => {
                 if (mergedRecommendations.has(recommended.id)) {
                     // Already exists, add to weightage...
@@ -248,6 +246,7 @@ async function getFriendRecommendations(targetUserId: number, sortingMode: SORTI
 }
 
 export const recommendFriends = async (request: FastifyRequest, reply: FastifyReply) => {
+    const prisma = new PrismaClient();
     try {
         const { auth_token, sort_by = "DEFAULT", chunk_size = 25 } = request.body as { auth_token: string; sort_by?: string; chunk_size: number; };
 
@@ -257,11 +256,13 @@ export const recommendFriends = async (request: FastifyRequest, reply: FastifyRe
         }
 
         const sortingMode = _getSortingMode(sort_by);
-        const recommendedFriends = await getFriendRecommendations(account!.id, sortingMode, chunk_size);
+        const recommendedFriends = await getFriendRecommendations(prisma, account!.id, sortingMode, chunk_size);
 
         reply.status(201).send({ status: "SUCCESS", result: recommendedFriends });
     } catch (error) {
         reply.status(500).send({ status: "FAILURE" });
+    } finally {
+        await prisma.$disconnect();
     }
 };
 

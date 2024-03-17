@@ -4,8 +4,6 @@ import { PrismaClient, Prisma, DirectMessage } from '@prisma/client';
 import { tryFindAccountBySessionToken } from '../../../utils/tryFindAccountBySessionToken';
 import { APPLICATION_SETTINGS } from '../../../config/settings';
 
-const prisma = new PrismaClient();
-
 interface SentMessage {
     message_id: number;
     sender_username: string;
@@ -16,7 +14,7 @@ interface SentMessage {
     is_deleted: boolean;
 }
 
-async function _getSentMessages(accountAId: number, accountBId: number, chunkSize: number) {
+async function _getSentMessages(prisma: PrismaClient, accountAId: number, accountBId: number, chunkSize: number) {
     return await prisma.directMessage.findMany({
         where: {
             OR: [
@@ -34,7 +32,7 @@ async function _getSentMessages(accountAId: number, accountBId: number, chunkSiz
     });
 }
 
-async function _getSentMessagesBeforeMessageId(accountAId: number, accountBId: number, startMessageId: number, chunkSize: number) {
+async function _getSentMessagesBeforeMessageId(prisma: PrismaClient, accountAId: number, accountBId: number, startMessageId: number, chunkSize: number) {
     return await prisma.directMessage.findMany({
         where: {
             OR: [
@@ -56,14 +54,16 @@ async function _getSentMessagesBeforeMessageId(accountAId: number, accountBId: n
 }
 
 export const getDirectMessages = async (request: FastifyRequest, reply: FastifyReply) => {
-    let { auth_token, target_account_id, chunk_size, start_id } = request.body as {
-        auth_token: string;
-        target_account_id: number;
-        chunk_size?: number;
-        start_id?: number;
-    };
 
+    const prisma = new PrismaClient();
     try {
+        let { auth_token, target_account_id, chunk_size, start_id } = request.body as {
+            auth_token: string;
+            target_account_id: number;
+            chunk_size?: number;
+            start_id?: number;
+        };
+
         console.log(auth_token)
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
         console.log(auth_token)
@@ -86,7 +86,7 @@ export const getDirectMessages = async (request: FastifyRequest, reply: FastifyR
         }
 
         const sentDirectMessages = await (start_id ?
-            _getSentMessagesBeforeMessageId(account.id, targetAccount.id, start_id, chunk_size) : _getSentMessages(account.id, targetAccount.id, chunk_size)
+            _getSentMessagesBeforeMessageId(prisma, account.id, targetAccount.id, start_id, chunk_size) : _getSentMessages(prisma, account.id, targetAccount.id, chunk_size)
         )
 
         const formattedSentMessages: SentMessage[] = sentDirectMessages.map((message) => ({
@@ -111,6 +111,8 @@ export const getDirectMessages = async (request: FastifyRequest, reply: FastifyR
         }
 
         reply.status(500).send({ status: "FAILURE" });
+    } finally {
+        await prisma.$disconnect();
     }
 };
 

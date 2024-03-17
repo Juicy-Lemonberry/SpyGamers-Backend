@@ -4,11 +4,10 @@ import { tryFindAccountBySessionToken } from '../../utils/tryFindAccountBySessio
 
 import { isIBMCompatibleTimeZone } from '../../utils/isIBMCompatibleTimeZone';
 
-const prisma = new PrismaClient();
-
 export const setTimezone = async (request: FastifyRequest, reply: FastifyReply) => {
-    const { auth_token, timezone_code } = request.body as { auth_token: string; timezone_code: string; };
+    const prisma = new PrismaClient();
     try {
+        const { auth_token, timezone_code } = request.body as { auth_token: string; timezone_code: string; };
         if (!isIBMCompatibleTimeZone(timezone_code.toUpperCase())){
             return reply.status(406).send({ status: "INVALID_TIMEZONE_CODE" });
         }
@@ -31,6 +30,8 @@ export const setTimezone = async (request: FastifyRequest, reply: FastifyReply) 
     } catch (error) {
         console.error("Error:", error);
         return reply.status(500).send({ status: "FAILURE" });
+    } finally {
+        await prisma.$disconnect();
     }
 };
 

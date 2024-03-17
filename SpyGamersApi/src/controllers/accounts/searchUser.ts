@@ -6,9 +6,9 @@ import { distance, closest } from 'fastest-levenshtein';
 const prisma = new PrismaClient();
 
 export const searchUsers = async (request: FastifyRequest, reply: FastifyReply) => {
-    const { username, case_sensitive = false } = request.query as { username: string; case_sensitive?: boolean };
-
+    const prisma = new PrismaClient();
     try {
+        const { username, case_sensitive = false } = request.query as { username: string; case_sensitive?: boolean };
         const users = await prisma.account.findMany({
             where: {
                 username: {
@@ -43,6 +43,8 @@ export const searchUsers = async (request: FastifyRequest, reply: FastifyReply) 
         });
     } catch (error) {
         reply.status(500).send({ status: "FAILURE", exists: false });
+    } finally {
+        await prisma.$disconnect();
     }
 }
 

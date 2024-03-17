@@ -4,9 +4,8 @@ import { tryFindAccountBySessionToken } from '../../../utils/tryFindAccountBySes
 
 import { isStringEmptyOrWhitespace } from '../../../utils/isStringEmptyOrWhitespace';
 
-const prisma = new PrismaClient();
-
 export const setGamePreference = async (request: FastifyRequest, reply: FastifyReply) => {
+    const prisma = new PrismaClient();
     try {
         const { auth_token, game_name } = request.body as { auth_token: string; game_name: string; };
 
@@ -41,6 +40,8 @@ export const setGamePreference = async (request: FastifyRequest, reply: FastifyR
     } catch (error) {
         console.error("Error:", error);
         return reply.status(500).send({ status: "FAILURE" });
+    } finally {
+        await prisma.$disconnect();
     }
 };
 

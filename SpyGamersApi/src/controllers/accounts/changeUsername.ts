@@ -2,11 +2,11 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import { tryFindAccountBySessionToken } from '../../utils/tryFindAccountBySessionToken';
 
-const prisma = new PrismaClient();
 
 export const changeUsername = async (request: FastifyRequest, reply: FastifyReply) => {
-    const { auth_token, new_username } = request.body as { auth_token: string; new_username: string; };
+    const prisma = new PrismaClient();
     try {
+        const { auth_token, new_username } = request.body as { auth_token: string; new_username: string; };
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
         if (!account) {
             return reply.status(401).send({ status: "BAD_AUTH" });
@@ -31,13 +31,13 @@ export const changeUsername = async (request: FastifyRequest, reply: FastifyRepl
             }
         })
 
-
-
         return reply.status(201).send({ status: "SUCCESS" });
     } catch (error) {
         console.error("Error:", error);
         return reply.status(500).send({ status: "FAILURE" });
-    }
+    } finally {
+		await prisma.$disconnect();
+	}
 };
 
 

@@ -3,9 +3,9 @@ import { PrismaClient } from '@prisma/client';
 import { tryFindAccountBySessionToken } from '../../../utils/tryFindAccountBySessionToken';
 import { distance } from 'fastest-levenshtein';
 
-const prisma = new PrismaClient();
 
 export const getFriends = async (request: FastifyRequest, reply: FastifyReply) => {
+    const prisma = new PrismaClient();
     const { auth_token, filter } = request.body as { auth_token: string; filter?: string; };
     try {
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
@@ -84,6 +84,8 @@ export const getFriends = async (request: FastifyRequest, reply: FastifyReply) =
     } catch (error) {
         console.error("Error:", error);
         return reply.status(500).send({ status: "FAILURE" });
+    } finally {
+        await prisma.$disconnect();
     }
 };
 

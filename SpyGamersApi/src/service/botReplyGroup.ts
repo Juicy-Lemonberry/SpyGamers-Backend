@@ -1,6 +1,5 @@
 
 import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
 
 import { isStringEmptyOrWhitespace } from '../utils/isStringEmptyOrWhitespace';
 import { UseLLMChat } from '../utils/useLLMChat';
@@ -9,6 +8,7 @@ import { UseLLMChat } from '../utils/useLLMChat';
  * Use this function to get a bot to reply back to a Group Message...
  */
 export default async function BotReplyGroup(botID: number, groupID: number, userMessage: string) {
+    const prisma = new PrismaClient();
     try {
 
         if (isStringEmptyOrWhitespace(userMessage)) {
@@ -59,5 +59,7 @@ export default async function BotReplyGroup(botID: number, groupID: number, user
     } catch (error) {
         console.log("Failed to query LLM Stack :: ", error)
         return false;
+    } finally {
+        await prisma.$disconnect();
     }
 }

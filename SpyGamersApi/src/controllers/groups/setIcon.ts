@@ -8,9 +8,8 @@ import { tryGetFileImageExtension } from '../../utils/tryGetFileImageExtension';
 import { GROUP_IMAGE_DIRECTORY } from '../../const'
 import { deleteFilesWithName } from '../../utils/deleteFilesWithName';
 
-const prisma = new PrismaClient();
-
 export const setIcon = async (request: FastifyRequest, reply: FastifyReply) => {
+    const prisma = new PrismaClient();
     const { auth_token, icon, group_id } = request.body as { auth_token: string; icon: object; group_id: string; };
     try {
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
@@ -67,6 +66,8 @@ export const setIcon = async (request: FastifyRequest, reply: FastifyReply) => {
     } catch (error) {
         console.error("Error:", error);
         return reply.status(500).send({ status: "FAILURE" });
+    } finally {
+        await prisma.$disconnect();
     }
 };
 

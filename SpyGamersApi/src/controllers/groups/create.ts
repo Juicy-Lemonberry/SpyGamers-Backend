@@ -3,9 +3,9 @@ import { PrismaClient, Prisma } from '@prisma/client';
 import { tryFindAccountBySessionToken } from '../../utils/tryFindAccountBySessionToken';
 import { isStringEmptyOrWhitespace } from '../../utils/isStringEmptyOrWhitespace';
 
-const prisma = new PrismaClient();
-
 export const createGroup = async (request: FastifyRequest, reply: FastifyReply) => {
+    const prisma = new PrismaClient();
+    
     try {
         const { auth_token, group_name, group_description } = request.body as { auth_token: string; group_name: string; group_description?: string };
 
@@ -42,6 +42,8 @@ export const createGroup = async (request: FastifyRequest, reply: FastifyReply) 
         reply.status(201).send({ status: "SUCCESS", group_id: newGroup.id });
     } catch (error) {
         reply.status(500).send({ status: "FAILURE" });
+    } finally {
+        await prisma.$disconnect();
     }
 };
 

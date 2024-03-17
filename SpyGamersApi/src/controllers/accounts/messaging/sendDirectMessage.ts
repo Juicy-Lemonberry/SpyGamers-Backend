@@ -11,8 +11,6 @@ import { isStringEmptyOrWhitespace } from '../../../utils/isStringEmptyOrWhitesp
 import { deleteFilesWithName } from '../../../utils/deleteFilesWithName';
 import BotReplyDM from '../../../service/botReplyDM';
 
-const prisma = new PrismaClient();
-
 async function _storeAttachment(attachmentID: number, attachment: object) {
     const pictureAsEncoded = attachment as unknown as string;
     const pictureExtension = tryGetFileImageExtension(pictureAsEncoded);
@@ -28,7 +26,7 @@ async function _storeAttachment(attachmentID: number, attachment: object) {
     return true;
 }
 
-async function _saveAttachment(directMessageID: number, attachment: object) {
+async function _saveAttachment(prisma: PrismaClient, directMessageID: number, attachment: object) {
     const newAttachmentStore = await prisma.directMessageAttachment.create({
         data: {
             dm_id: directMessageID
@@ -41,15 +39,17 @@ async function _saveAttachment(directMessageID: number, attachment: object) {
     }
 }
 
-async function _tryStoreAttachments(directMessageID: number, attachments: object[]) {
+async function _tryStoreAttachments(prisma: PrismaClient, directMessageID: number, attachments: object[]) {
     await fs.promises.mkdir(DIRECT_MESSAGE_IMAGE_DIRECTORY, { recursive: true });
 
-    const attachmentPromises = attachments.map(async (attachment) => await _saveAttachment(directMessageID, attachment));
+    const attachmentPromises = attachments.map(async (attachment) => await _saveAttachment(prisma, directMessageID, attachment));
 
     return await Promise.all(attachmentPromises);
 }
 
 export const sendDirectMessage = async (request: FastifyRequest, reply: FastifyReply) => {
+    const prisma = new PrismaClient();
+
     try {
         const { auth_token, target_account_id, content, attachments } = request.body as { 
             auth_token: string;
@@ -109,7 +109,7 @@ export const sendDirectMessage = async (request: FastifyRequest, reply: FastifyR
         // Convert single attachment to array
         const attachmentArray = Array.isArray(attachments) ? attachments : [attachments];
         // There are attachments to store...
-        const storeResults = await _tryStoreAttachments(directMessageID, attachmentArray);
+        const storeResults = await _tryStoreAttachments(prisma, directMessageID, attachmentArray);
 
         // Check if storing the attachments failed
         let storeSuccess = true;
@@ -153,6 +153,8 @@ export const sendDirectMessage = async (request: FastifyRequest, reply: FastifyR
     } catch (error) {
         console.error("Error:", error);
         return reply.status(500).send({ status: "FAILURE" });
+    } finally {
+        await prisma.$disconnect();
     }
 };
 
