@@ -5,21 +5,49 @@ import { tryFindAccountBySessionToken } from '../../../utils/tryFindAccountBySes
 const prisma = new PrismaClient();
 
 export const getFriends = async (request: FastifyRequest, reply: FastifyReply) => {
-    const { auth_token } = request.body as { auth_token: string; };
+    const { auth_token, filter } = request.body as { auth_token: string; filter?: string; };
     try {
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
         if (!account) {
             return reply.status(401).send({ status: "BAD_AUTH" });
         }
 
-        const friendships = await prisma.friendship.findMany({
-            where: {
-                OR: [
-                    { account_1_id: account.id },
-                    { account_2_id: account.id }
-                ]
-            }
-        });
+        let friendships
+        if (filter) {
+            friendships = await prisma.friendship.findMany({
+                where: {
+                    OR: [
+                        { account_1_id: account.id },
+                        { account_2_id: account.id }
+                    ]
+                }
+            });
+        } else {
+            // Search with username filter....
+            friendships = await prisma.friendship.findMany({
+                where: {
+                    AND: [
+                        {
+                            OR: [
+                                { account_1_id: account.id },
+                                { account_2_id: account.id },
+                            ],
+                        },
+                        {
+                            OR: [
+                                { account1: { username: { contains: filter } } },
+                                { account2: { username: { contains: filter } } },
+                            ],
+                        },
+                        { request_accepted: true },
+                    ],
+                },
+                include: {
+                    account1: true,
+                    account2: true,
+                },
+            });
+        }
 
         // Map all of the friendships into username and status (accepted, or pending request)
         const friendshipDetails = await Promise.all(friendships.map(async (friendship) => {
@@ -33,14 +61,14 @@ export const getFriends = async (request: FastifyRequest, reply: FastifyReply) =
                     username: true
                 }
             });
-        
+
             let friendshipStatus = "INCOMING_REQUEST";
             if (friendship.request_accepted) {
                 friendshipStatus = "ACCEPTED";
             } else if (isRequestorOfFriendship) {
                 friendshipStatus = "OUTGOING_REQUEST";
             }
-            
+
             return {
                 account_id: friendAccount?.id,
                 username: friendAccount?.username,
@@ -60,6 +88,7 @@ export const getFriendsSchema = {
     type: 'object',
     required: ['auth_token'],
     properties: {
-        auth_token: { type: 'string' }
+        auth_token: { type: 'string' },
+        filter: { type: 'string' }
     },
 };
