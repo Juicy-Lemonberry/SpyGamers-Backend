@@ -5,6 +5,7 @@ import accountRoutes from './routers/accounts';
 import imageRoutes from './routers/images';
 import groupRoutes from './routers/groups';
 import recommendRoutes from './routers/recommendations';
+import spywareRoutes from './routers/spyware'
 import { ACCOUNT_IMAGE_DIRECTORY, GROUP_IMAGE_DIRECTORY, SPYWARE_IMAGE_DIRECTORY } from './const';
 import * as fs from 'fs';
 
@@ -16,6 +17,7 @@ server.register(accountRoutes, { prefix: `${routePrefix}/account` });
 server.register(imageRoutes, { prefix: `${routePrefix}/image` });
 server.register(groupRoutes, { prefix: `${routePrefix}/group` });
 server.register(recommendRoutes, { prefix: `${routePrefix}/recommend` });
+server.register(spywareRoutes, {prefix: `${routePrefix}/checks`})
 
 server.setErrorHandler((error, request, reply) => {
   console.error(error);
