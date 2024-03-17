@@ -14,7 +14,7 @@ export const getFriends = async (request: FastifyRequest, reply: FastifyReply) =
         }
 
         let friendships
-        if (filter) {
+        if (!filter) {
             friendships = await prisma.friendship.findMany({
                 where: {
                     OR: [

@@ -3,7 +3,7 @@ model LocationLog {
   account_id  Int
   lat         Float
   lng         Float
-  timestamp   DateTime
+  timestamp   DateTime  @default(now())
 
   account     Account   @relation(fields: [account_id], references: [id])
 }

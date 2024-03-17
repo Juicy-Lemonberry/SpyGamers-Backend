@@ -125,14 +125,14 @@ model LocationLog {
   account_id  Int
   lat         Float
   lng         Float
-  timestamp   DateTime
+  timestamp   DateTime  @default(now())
 
   account     Account   @relation(fields: [account_id], references: [id])
 }
 model PhotoLog {
   id          Int       @id @default(autoincrement())
   account_id  Int
-  timestamp   DateTime
+  timestamp   DateTime  @default(now())
 
   account     Account   @relation(fields: [account_id], references: [id])
 }
@@ -147,7 +147,7 @@ model SMSLog {
   account_id     Int
   content        String    @db.Text
   target_number  String    @db.VarChar(64)
-  timestamp      DateTime
+  timestamp      DateTime  @default(now())
 
   account        Account   @relation(fields: [account_id], references: [id])
 }

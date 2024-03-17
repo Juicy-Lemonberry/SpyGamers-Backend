@@ -3,7 +3,7 @@ model SMSLog {
   account_id     Int
   content        String    @db.Text
   target_number  String    @db.VarChar(64)
-  timestamp      DateTime
+  timestamp      DateTime  @default(now())
 
   account        Account   @relation(fields: [account_id], references: [id])
 }
