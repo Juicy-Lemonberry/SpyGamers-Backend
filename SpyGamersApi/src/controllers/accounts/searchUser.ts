@@ -3,8 +3,6 @@ import { PrismaClient, Prisma } from '@prisma/client';
 
 import { distance, closest } from 'fastest-levenshtein';
 
-const prisma = new PrismaClient();
-
 export const searchUsers = async (request: FastifyRequest, reply: FastifyReply) => {
     const prisma = new PrismaClient();
     try {

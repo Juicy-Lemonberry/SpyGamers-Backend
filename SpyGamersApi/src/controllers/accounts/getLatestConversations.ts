@@ -1,8 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { tryFindAccountBySessionToken } from '../../utils/tryFindAccountBySessionToken';
-
-const prisma = new PrismaClient();
 
 interface Conversation {
     conversation_id: number;
@@ -33,6 +31,8 @@ function isGroupConversation(conversation: any): conversation is GroupConversati
 }
 
 export const getLatestConversation = async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
+    const prisma = new PrismaClient();
+
     try {
         const { auth_token, chunk_size } = request.body as { auth_token: string; chunk_size?: number; };
 
@@ -115,6 +115,8 @@ export const getLatestConversation = async (request: FastifyRequest, reply: Fast
         reply.status(200).send({ status: "SUCCESS", result: uniqueConversations });
     } catch (error) {
         reply.status(500).send({ status: "FAILURE" });
+    } finally {
+        await prisma.$disconnect();
     }
 };
 
