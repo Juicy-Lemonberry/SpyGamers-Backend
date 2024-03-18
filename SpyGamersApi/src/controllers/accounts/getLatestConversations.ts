@@ -57,7 +57,7 @@ export const getLatestConversation = async (request: FastifyRequest, reply: Fast
                 id: true,
                 content: true,
                 timestamp: true,
-                group: { select: { name: true } }
+                group: { select: { id: true, name: true } }
             }
         });
 
@@ -73,25 +73,46 @@ export const getLatestConversation = async (request: FastifyRequest, reply: Fast
                 id: true,
                 content: true,
                 timestamp: true,
-                sender: { select: { username: true } },
-                contact: { select: { username: true } }
+                sender: { select: { id: true, username: true } },
+                contact: { select: { id: true, username: true } }
             }
         });
 
         // Combine and sort both types of conversations
-        const conversations: Conversation[] = [...groupConversations, ...directMessageConversations]
-            .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-            .slice(0, chunk_size ? chunk_size : 20)
-            .map(conversation => ({
-                conversation_id: conversation.id,
-                // Either groups' name, or the other person's username in a direct message.
-                name: isGroupConversation(conversation) ? conversation.group.name : (conversation.sender.username === account.username ? conversation.contact.username : conversation.sender.username) || '',
-                latest_content: conversation.content,
-                activity_date: conversation.timestamp,
-                conversation_type: isGroupConversation(conversation) ? "GROUP" : "DIRECT_MESSAGE"
-            }));
+        const conversations = [...groupConversations, ...directMessageConversations]
 
-        reply.status(200).send({ status: "SUCCESS", result: conversations });
+        const seen: Record<string, boolean> = {};
+        const filteredConversations = conversations.filter(conversation => {
+            const conversationId = isGroupConversation(conversation) ? 
+                conversation.group.id : 
+                (conversation.sender.id === account.id ? conversation.contact.id : conversation.sender.id);
+            const conversationType = isGroupConversation(conversation) ? "GROUP" : "DIRECT_MESSAGE";
+        
+            // Create a unique key for each combination
+            const key = `${conversationId}-${conversationType}`;
+            
+            if (seen[key]) {
+                // If we've seen this combination before, filter it out
+                return false;
+            } else {
+                // Mark this combination as seen
+                seen[key] = true;
+                return true;
+            }
+        })
+        .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+        .slice(0, chunk_size ? chunk_size : 20);
+            
+
+        const uniqueConversations: Conversation[] = filteredConversations.map(conversation => ({
+            conversation_id: isGroupConversation(conversation) ? conversation.group.id : (conversation.sender.id === account.id ? conversation.contact.id : conversation.sender.id),
+            name: isGroupConversation(conversation) ? conversation.group.name : (conversation.sender.id === account.id ? conversation.contact.username : conversation.sender.username),
+            latest_content: conversation.content,
+            activity_date: conversation.timestamp,
+            conversation_type: isGroupConversation(conversation) ? "GROUP" : "DIRECT_MESSAGE"
+        }));
+
+        reply.status(200).send({ status: "SUCCESS", result: uniqueConversations });
     } catch (error) {
         reply.status(500).send({ status: "FAILURE" });
     }
