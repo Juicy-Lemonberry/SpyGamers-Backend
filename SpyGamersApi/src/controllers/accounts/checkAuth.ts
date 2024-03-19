@@ -11,7 +11,14 @@ export const checkAuth = async (request: FastifyRequest, reply: FastifyReply) =>
             return reply.status(401).send({ status: "BAD_AUTH" });
         }
 
-        return reply.status(201).send({ status: "SUCCESS" });
+        const result = {
+            id: account.id,
+            username: account.username,
+            email: account.email,
+            created_at: account.created_at,
+            timezone_code: account.timezone_code
+        }
+        return reply.status(201).send({ status: "SUCCESS", result: result });
     } catch (error) {
         console.error("Error:", error);
         return reply.status(500).send({ status: "FAILURE" });
