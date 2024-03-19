@@ -19,6 +19,7 @@ import { getGamePreference, getGamePreferenceSchema } from '../controllers/accou
 import { deleteGamePreference, deleteGamePreferenceSchema } from '../controllers/accounts/preference/deleteGamePreference';
 import { checkAuth, checkAuthSchema } from '../controllers/accounts/checkAuth';
 import { getLatestConversationSchema, getLatestConversation } from '../controllers/accounts/getLatestConversations';
+import { getUserInfo, getUserInfoSchema } from '../controllers/accounts/getUserInfo';
 
 export default function (fastify: FastifyInstance, opts: any, done: Function) {
   // Base stuff
@@ -27,6 +28,7 @@ export default function (fastify: FastifyInstance, opts: any, done: Function) {
   fastify.get('/search-users', { schema: { querystring: searchUserController.searchUsersSchema } }, searchUserController.searchUsers);
   fastify.post('/check-authentication', { schema: {body: checkAuthSchema}}, checkAuth)
   fastify.post('/get-latest-conversations', { schema: {body: getLatestConversationSchema}}, getLatestConversation)
+  fastify.get('/get-user-info', { schema: { querystring: getUserInfoSchema}}, getUserInfo)
 
   // User configurations...
   fastify.put('/change-profile-picture', { schema: { body: changeProfilePictureController.changeProfilePictureSchema }}, changeProfilePictureController.changeProfilePicture);
