@@ -11,7 +11,7 @@ export const addMember = async (request: FastifyRequest, reply: FastifyReply) =>
 
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
         if (!account) {
-            return reply.status(401).send({ status: "BAD_AUTH" });
+            return reply.status(200).send({ status: "BAD_AUTH" });
         }
 
         // Check if group exists
@@ -22,7 +22,7 @@ export const addMember = async (request: FastifyRequest, reply: FastifyReply) =>
         });
 
         if (!groupExists){
-            return reply.status(406).send({ status: "GROUP_NOT_EXISTS" });
+            return reply.status(200).send({ status: "GROUP_NOT_EXISTS" });
         }
 
         // Check if the account is an admin member of the specified group
@@ -34,11 +34,11 @@ export const addMember = async (request: FastifyRequest, reply: FastifyReply) =>
         });
 
         if (!isMember) {
-            return reply.status(406).send({ status: "NOT_GROUP_MEMBER" });
+            return reply.status(200).send({ status: "NOT_GROUP_MEMBER" });
         }
 
         if (!isMember.is_admin) {
-            return reply.status(406).send({ status: "NOT_GROUP_ADMIN" });
+            return reply.status(200).send({ status: "NOT_GROUP_ADMIN" });
         }
 
         // Check if target is already a member:
@@ -50,13 +50,13 @@ export const addMember = async (request: FastifyRequest, reply: FastifyReply) =>
         });
 
         if (targetIsMember) {
-            return reply.status(406).send({ status: "EXISTING_MEMBER"})
+            return reply.status(200).send({ status: "EXISTING_MEMBER"})
         }
 
         // Check if target and user is friends
         const friendship = await searchFriendship(prisma, account.id, target_user_id);
         if (friendship == undefined || !friendship.request_accepted) {
-            return reply.status(406).send({ status: "NOT_FRIENDS" })
+            return reply.status(200).send({ status: "NOT_FRIENDS" })
         }
 
         // Add into group...
@@ -68,7 +68,7 @@ export const addMember = async (request: FastifyRequest, reply: FastifyReply) =>
             }
         })
 
-        reply.status(200).send({ status: "SUCCESS" });
+        reply.status(201).send({ status: "SUCCESS" });
     } catch (error) {
         console.error("Error:", error);
         reply.status(500).send({ status: "FAILURE" });

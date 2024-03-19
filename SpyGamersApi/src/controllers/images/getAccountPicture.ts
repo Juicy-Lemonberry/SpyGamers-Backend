@@ -47,7 +47,7 @@ export const getAccountPicture = async (request: FastifyRequest, reply: FastifyR
         const pfpPath = await _findFirstPfpFilePath(accountFolder);
 
         if (pfpPath === undefined) {
-            return reply.status(404).send({ status: "3" });
+            return reply.status(200).send({ status: "3" });
         }
 
         const imageExtension = path.extname(pfpPath).substring(1);
@@ -57,7 +57,7 @@ export const getAccountPicture = async (request: FastifyRequest, reply: FastifyR
         return reply.type(`image/${imageExtension}`).send(stream);
     } catch (error) {
         if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
-            return reply.status(404).send({ status: `ID_INVALID` });
+            return reply.status(200).send({ status: `ID_INVALID` });
         }
 
         reply.status(500).send({ status: "FAILURE" });

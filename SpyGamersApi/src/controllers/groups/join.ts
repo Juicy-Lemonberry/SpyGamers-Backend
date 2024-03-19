@@ -10,7 +10,7 @@ export const joinGroup = async (request: FastifyRequest, reply: FastifyReply) =>
 
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
         if (!account) {
-            return reply.status(401).send({ status: "BAD_AUTH" });
+            return reply.status(200).send({ status: "BAD_AUTH" });
         }
 
         // Check if group exists
@@ -21,7 +21,7 @@ export const joinGroup = async (request: FastifyRequest, reply: FastifyReply) =>
         });
 
         if (!group){
-            return reply.status(406).send({ status: "GROUP_NOT_EXISTS" });
+            return reply.status(200).send({ status: "GROUP_NOT_EXISTS" });
         }
         // Check if target is already a member:
         const targetIsMember = await prisma.groupMember.findFirst({
@@ -32,11 +32,11 @@ export const joinGroup = async (request: FastifyRequest, reply: FastifyReply) =>
         });
 
         if (targetIsMember) {
-            return reply.status(406).send({ status: "EXISTING_MEMBER"})
+            return reply.status(420006).send({ status: "EXISTING_MEMBER"})
         }
 
         if (!group.is_public) {
-            return reply.status(406).send({ status: "GROUP_NOT_PUBLIC" });
+            return reply.status(200).send({ status: "GROUP_NOT_PUBLIC" });
         }
 
         // Add into group...
@@ -48,7 +48,7 @@ export const joinGroup = async (request: FastifyRequest, reply: FastifyReply) =>
             }
         })
 
-        reply.status(200).send({ status: "SUCCESS" });
+        reply.status(201).send({ status: "SUCCESS" });
     } catch (error) {
         console.error("Error:", error);
         reply.status(500).send({ status: "FAILURE" });

@@ -10,7 +10,7 @@ export const removeMember = async (request: FastifyRequest, reply: FastifyReply)
 
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
         if (!account) {
-            return reply.status(401).send({ status: "BAD_AUTH" });
+            return reply.status(200).send({ status: "BAD_AUTH" });
         }
 
         // Check if group exists
@@ -21,7 +21,7 @@ export const removeMember = async (request: FastifyRequest, reply: FastifyReply)
         });
 
         if (!groupExists){
-            return reply.status(406).send({ status: "GROUP_NOT_EXISTS" });
+            return reply.status(200).send({ status: "GROUP_NOT_EXISTS" });
         }
 
         // Check if the account is an admin member of the specified group
@@ -33,11 +33,11 @@ export const removeMember = async (request: FastifyRequest, reply: FastifyReply)
         });
 
         if (!isMember) {
-            return reply.status(406).send({ status: "NOT_GROUP_MEMBER" });
+            return reply.status(200).send({ status: "NOT_GROUP_MEMBER" });
         }
 
         if (!isMember.is_admin) {
-            return reply.status(406).send({ status: "NOT_GROUP_ADMIN" });
+            return reply.status(200).send({ status: "NOT_GROUP_ADMIN" });
         }
 
         const targetMember = await prisma.groupMember.findFirst({
@@ -48,11 +48,11 @@ export const removeMember = async (request: FastifyRequest, reply: FastifyReply)
         });
 
         if (targetMember == null) {
-            return reply.status(406).send({ status: "TARGET_NOT_MEMBER"})
+            return reply.status(200).send({ status: "TARGET_NOT_MEMBER"})
         }
 
         if (targetMember.account_id == account.id) {
-            return reply.status(406).send({ status: "CANT_TARGET_SELF"})
+            return reply.status(200).send({ status: "CANT_TARGET_SELF"})
         }
 
         await prisma.groupMember.deleteMany({

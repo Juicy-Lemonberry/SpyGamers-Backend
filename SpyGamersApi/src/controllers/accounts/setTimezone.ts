@@ -14,7 +14,7 @@ export const setTimezone = async (request: FastifyRequest, reply: FastifyReply) 
 
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
         if (!account) {
-            return reply.status(401).send({ status: "BAD_AUTH" });
+            return reply.status(200).send({ status: "BAD_AUTH" });
         }
 
         await prisma.account.update({

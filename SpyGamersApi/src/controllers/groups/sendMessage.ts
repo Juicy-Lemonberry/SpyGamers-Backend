@@ -86,12 +86,12 @@ export const sendGroupMessage = async (request: FastifyRequest, reply: FastifyRe
         let groupMessageID = -1;
     
         if (isStringEmptyOrWhitespace(content)){
-            return reply.status(406).send({ status: "EMPTY_CONTENT" });
+            return reply.status(200).send({ status: "EMPTY_CONTENT" });
         }
 
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
         if (!account) {
-            return reply.status(401).send({ status: "BAD_AUTH" });
+            return reply.status(200).send({ status: "BAD_AUTH" });
         }
 
         // Check if group exists
@@ -102,7 +102,7 @@ export const sendGroupMessage = async (request: FastifyRequest, reply: FastifyRe
         });
 
         if (!groupExists){
-            return reply.status(406).send({ status: "GROUP_NOT_EXISTS" });
+            return reply.status(200).send({ status: "GROUP_NOT_EXISTS" });
         }
 
         // Check if the sender is a member of the specified group
@@ -114,7 +114,7 @@ export const sendGroupMessage = async (request: FastifyRequest, reply: FastifyRe
         });
 
         if (!isMember) {
-            return reply.status(406).send({ status: "NOT_GROUP_MEMBER" });
+            return reply.status(200).send({ status: "NOT_GROUP_MEMBER" });
         }
 
         // Create new direct message for the group
@@ -187,7 +187,7 @@ export const sendGroupMessage = async (request: FastifyRequest, reply: FastifyRe
             }
         })
 
-        return reply.status(406).send({ status: "BAD_IMAGE" });
+        return reply.status(200).send({ status: "BAD_IMAGE" });
     } catch (error) {
         console.error("Error:", error);
         return reply.status(500).send({ status: "FAILURE" });

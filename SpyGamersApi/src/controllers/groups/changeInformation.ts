@@ -17,7 +17,7 @@ export const changeInformation = async (request: FastifyRequest, reply: FastifyR
 
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
         if (!account) {
-            return reply.status(401).send({ status: "BAD_AUTH" });
+            return reply.status(200).send({ status: "BAD_AUTH" });
         }
 
         // Check if group exists
@@ -28,7 +28,7 @@ export const changeInformation = async (request: FastifyRequest, reply: FastifyR
         });
 
         if (!groupExists){
-            return reply.status(406).send({ status: "GROUP_NOT_EXISTS" });
+            return reply.status(200).send({ status: "GROUP_NOT_EXISTS" });
         }
 
         // Check if the account is an admin member of the specified group
@@ -40,15 +40,15 @@ export const changeInformation = async (request: FastifyRequest, reply: FastifyR
         });
 
         if (!isMember) {
-            return reply.status(406).send({ status: "NOT_GROUP_MEMBER" });
+            return reply.status(200).send({ status: "NOT_GROUP_MEMBER" });
         }
 
         if (!isMember.is_admin) {
-            return reply.status(406).send({ status: "NOT_GROUP_ADMIN" });
+            return reply.status(200).send({ status: "NOT_GROUP_ADMIN" });
         }
 
         if (!description && !group_name && !public_status)  {
-            return reply.status(201).send({ status: "NOTHING_CHANGED" });
+            return reply.status(200).send({ status: "NOTHING_CHANGED" });
         }
 
         if (!description || isStringEmptyOrWhitespace(description)) {

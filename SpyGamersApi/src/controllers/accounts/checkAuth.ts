@@ -8,7 +8,7 @@ export const checkAuth = async (request: FastifyRequest, reply: FastifyReply) =>
         const { auth_token } = request.body as { auth_token: string; }
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
         if (!account) {
-            return reply.status(401).send({ status: "BAD_AUTH" });
+            return reply.status(200).send({ status: "BAD_AUTH" });
         }
 
         const result = {

@@ -10,7 +10,7 @@ export const getGroupMembers = async (request: FastifyRequest, reply: FastifyRep
 
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
         if (!account) {
-            return reply.status(401).send({ status: "BAD_AUTH" });
+            return reply.status(200).send({ status: "BAD_AUTH" });
         }
 
         // Check if group exists
@@ -21,7 +21,7 @@ export const getGroupMembers = async (request: FastifyRequest, reply: FastifyRep
         });
 
         if (!groupExists){
-            return reply.status(406).send({ status: "GROUP_NOT_EXISTS" });
+            return reply.status(200).send({ status: "GROUP_NOT_EXISTS" });
         }
 
         // Check if the account is a member of the specified group
@@ -33,7 +33,7 @@ export const getGroupMembers = async (request: FastifyRequest, reply: FastifyRep
         });
 
         if (!isMember) {
-            return reply.status(406).send({ status: "NOT_GROUP_MEMBER" });
+            return reply.status(200).send({ status: "NOT_GROUP_MEMBER" });
         } 
 
         // Fetch all accounts that are members of the specified group

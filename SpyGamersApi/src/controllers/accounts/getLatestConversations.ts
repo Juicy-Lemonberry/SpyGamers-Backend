@@ -39,7 +39,7 @@ export const getLatestConversation = async (request: FastifyRequest, reply: Fast
         // Find the account associated with the provided auth token
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
         if (!account) {
-            reply.status(401).send({ status: "BAD_AUTH" });
+            reply.status(200).send({ status: "BAD_AUTH" });
             return;
         }
 

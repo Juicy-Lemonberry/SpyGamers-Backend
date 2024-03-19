@@ -68,7 +68,7 @@ export const recommedGroups = async (request: FastifyRequest, reply: FastifyRepl
 
 		const account = await tryFindAccountBySessionToken(auth_token, prisma);
 		if (!account) {
-			return reply.status(401).send({ status: "BAD_AUTH" });
+			return reply.status(200).send({ status: "BAD_AUTH" });
 		}
 
 		const recommendedGroups = (await recommendGroupsForUser(prisma, account.id)).slice(0, chunk_size);

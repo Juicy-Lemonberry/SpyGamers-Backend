@@ -43,13 +43,13 @@ export const getGroupIcon = async (request: FastifyRequest, reply: FastifyReply)
         });
 
         if (!groupExists){
-            return reply.status(406).send({ status: "GROUP_NOT_EXISTS" });
+            return reply.status(200).send({ status: "GROUP_NOT_EXISTS" });
         }
 
         const pfpPath = await _findFirstIconFilePath(GROUP_IMAGE_DIRECTORY, groupExists.id);
 
         if (pfpPath === undefined) {
-            return reply.status(404).send({ status: "NOT_FOUND" });
+            return reply.status(200).send({ status: "NOT_FOUND" });
         }
 
         const imageExtension = path.extname(pfpPath).substring(1);

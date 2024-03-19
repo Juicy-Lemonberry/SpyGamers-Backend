@@ -252,13 +252,13 @@ export const recommendFriends = async (request: FastifyRequest, reply: FastifyRe
 
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
         if (account == undefined) {
-            reply.status(401).send({ status: "BAD_AUTH" });
+            reply.status(200).send({ status: "BAD_AUTH" });
         }
 
         const sortingMode = _getSortingMode(sort_by);
         const recommendedFriends = await getFriendRecommendations(prisma, account!.id, sortingMode, chunk_size);
 
-        reply.status(201).send({ status: "SUCCESS", result: recommendedFriends });
+        reply.status(200).send({ status: "SUCCESS", result: recommendedFriends });
     } catch (error) {
         reply.status(500).send({ status: "FAILURE" });
     } finally {

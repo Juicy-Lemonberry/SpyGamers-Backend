@@ -13,7 +13,7 @@ export const deleteGroupMessage = async (request: FastifyRequest, reply: Fastify
 
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
         if (!account) {
-            return reply.status(401).send({ status: "FAILURE" });
+            return reply.status(200).send({ status: "FAILURE" });
         }
 
         const targetMessage = await prisma.groupMessage.findFirst({
@@ -23,15 +23,15 @@ export const deleteGroupMessage = async (request: FastifyRequest, reply: Fastify
         });
 
         if (targetMessage == null) {
-            return reply.status(406).send({ status: "MESSAGE_NOT_FOUND" });
+            return reply.status(200).send({ status: "MESSAGE_NOT_FOUND" });
         }
 
         if (targetMessage.sender_id != account.id) {
-            return reply.status(406).send({ status: "NOT_MESSAGE_AUTHOR" });
+            return reply.status(200).send({ status: "NOT_MESSAGE_AUTHOR" });
         }
 
         if (targetMessage.is_deleted) {
-            return reply.status(406).send({ status: "ALREADY_DELETED" });
+            return reply.status(200).send({ status: "ALREADY_DELETED" });
         }
 
         await prisma.groupMessage.update({

@@ -14,12 +14,12 @@ export const editGroupMessage = async (request: FastifyRequest, reply: FastifyRe
 
     try {
         if (isStringEmptyOrWhitespace(new_content)){
-            return reply.status(406).send({ status: "EMPTY_CONTENT" });
+            return reply.status(200).send({ status: "EMPTY_CONTENT" });
         }
 
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
         if (!account) {
-            return reply.status(401).send({ status: "BAD_AUTH" });
+            return reply.status(200).send({ status: "BAD_AUTH" });
         }
 
         const targetMessage = await prisma.groupMessage.findFirst({
@@ -29,11 +29,11 @@ export const editGroupMessage = async (request: FastifyRequest, reply: FastifyRe
         });
 
         if (targetMessage == null) {
-            return reply.status(406).send({ status: "MESSAGE_NOT_FOUND" });
+            return reply.status(200).send({ status: "MESSAGE_NOT_FOUND" });
         }
 
         if (targetMessage.sender_id != account.id) {
-            return reply.status(406).send({ status: "NOT_MESSAGE_AUTHOR" });
+            return reply.status(200).send({ status: "NOT_MESSAGE_AUTHOR" });
         }
 
         await prisma.groupMessage.update({

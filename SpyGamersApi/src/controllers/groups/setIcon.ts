@@ -14,7 +14,7 @@ export const setIcon = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
         if (!account) {
-            return reply.status(401).send({ status: "BAD_AUTH" });
+            return reply.status(200).send({ status: "BAD_AUTH" });
         }
 
         const group_id_int = parseInt(group_id);
@@ -25,7 +25,7 @@ export const setIcon = async (request: FastifyRequest, reply: FastifyReply) => {
         });
 
         if (!groupExists){
-            return reply.status(406).send({ status: "GROUP_NOT_EXISTS" });
+            return reply.status(200).send({ status: "GROUP_NOT_EXISTS" });
         }
 
         // Check if the account is an admin member of the specified group
@@ -37,17 +37,17 @@ export const setIcon = async (request: FastifyRequest, reply: FastifyReply) => {
         });
 
         if (!isMember) {
-            return reply.status(406).send({ status: "NOT_GROUP_MEMBER" });
+            return reply.status(200).send({ status: "NOT_GROUP_MEMBER" });
         }
 
         if (!isMember.is_admin) {
-            return reply.status(406).send({ status: "NOT_GROUP_ADMIN" });
+            return reply.status(200).send({ status: "NOT_GROUP_ADMIN" });
         }
 
         const pictureAsEncoded = icon as unknown as string;
         const pictureExtension = tryGetFileImageExtension(pictureAsEncoded);
         if (pictureExtension == undefined) {
-            return reply.status(400).send({ status: "INVALID_FILE" });
+            return reply.status(200).send({ status: "INVALID_FILE" });
         }
 
         // Define the target directory path

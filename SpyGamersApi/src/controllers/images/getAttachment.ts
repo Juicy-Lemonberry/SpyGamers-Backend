@@ -37,7 +37,7 @@ async function _handleGroupAttachment(prisma: PrismaClient, reply: FastifyReply,
     });
 
     if (attachment == null) {
-        return reply.status(406).send({ status: "ATTACHMENT_NOT_EXISTS" });
+        return reply.status(200).send({ status: "ATTACHMENT_NOT_EXISTS" });
     }
 
     const groupMessage = await prisma.groupMessage.findFirst({
@@ -47,7 +47,7 @@ async function _handleGroupAttachment(prisma: PrismaClient, reply: FastifyReply,
     })
 
     if (groupMessage == null) {
-        return reply.status(406).send({ status: "ATTACHMENT_NOT_EXISTS" });
+        return reply.status(200).send({ status: "ATTACHMENT_NOT_EXISTS" });
     }
 
     const accountGroupMember = await prisma.groupMember.findFirst({
@@ -58,13 +58,13 @@ async function _handleGroupAttachment(prisma: PrismaClient, reply: FastifyReply,
     })
 
     if (accountGroupMember == null) {
-        return reply.status(406).send({ status: "NOT_IN_GROUP" });
+        return reply.status(200).send({ status: "NOT_IN_GROUP" });
     }
  
 
     const filePath = await _findFirstFilePath(GROUP_IMAGE_DIRECTORY, `ga_${attachmentID}`);
     if (filePath == undefined) {
-        return reply.status(406).send({ status: "ATTACHMENT_NOT_EXISTS" });
+        return reply.status(200).send({ status: "ATTACHMENT_NOT_EXISTS" });
     }
 
     const imageExtension = path.extname(filePath).substring(1);
@@ -83,7 +83,7 @@ async function _handleDirectMessageAttachment(prisma: PrismaClient, reply: Fasti
     });
 
     if (attachment == null) {
-        return reply.status(406).send({ status: "ATTACHMENT_NOT_EXISTS" });
+        return reply.status(200).send({ status: "ATTACHMENT_NOT_EXISTS" });
     }
 
     const directMessage = await prisma.directMessage.findFirst({
@@ -93,17 +93,17 @@ async function _handleDirectMessageAttachment(prisma: PrismaClient, reply: Fasti
     })
 
     if (directMessage == null) {
-        return reply.status(406).send({ status: "ATTACHMENT_NOT_EXISTS" });
+        return reply.status(200).send({ status: "ATTACHMENT_NOT_EXISTS" });
     }
 
     const canViewAttachment = directMessage.contact_id == accountID || directMessage.sender_id == accountID
     if (!canViewAttachment) {
-        return reply.status(406).send({ status: "NOT_IN_DM" });
+        return reply.status(200).send({ status: "NOT_IN_DM" });
     }
 
     const filePath = await _findFirstFilePath(DIRECT_MESSAGE_IMAGE_DIRECTORY, `dma_${attachmentID}`);
     if (filePath == undefined) {
-        return reply.status(406).send({ status: "ATTACHMENT_NOT_EXISTS" });
+        return reply.status(200).send({ status: "ATTACHMENT_NOT_EXISTS" });
     }
 
     const imageExtension = path.extname(filePath).substring(1);
@@ -119,7 +119,7 @@ export const getAttachment = async (request: FastifyRequest, reply: FastifyReply
         const { attachment_id, auth_token, attachment_type = "DIRECT_MESSAGE" } = request.body as { attachment_id: number; auth_token:string; attachment_type?: string; }
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
         if (account == undefined) {
-            return reply.status(401).send({ status: `BAD_AUTH` });
+            return reply.status(200).send({ status: `BAD_AUTH` });
         }
 
         if (attachment_type.trim().toUpperCase() == "GROUP") {
@@ -128,10 +128,10 @@ export const getAttachment = async (request: FastifyRequest, reply: FastifyReply
             return await _handleDirectMessageAttachment(prisma, reply, account.id, attachment_id);
         }
 
-        return reply.status(406).send({ status: `UNKNOWN_ATTACHMENT_TYPE` });
+        return reply.status(200).send({ status: `UNKNOWN_ATTACHMENT_TYPE` });
     } catch (error) {
         if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
-            return reply.status(404).send({ status: `ID_INVALID` });
+            return reply.status(200).send({ status: `ID_INVALID` });
         }
 
         reply.status(500).send({ status: "FAILURE" });

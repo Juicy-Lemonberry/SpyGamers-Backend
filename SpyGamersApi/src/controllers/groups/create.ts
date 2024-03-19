@@ -11,15 +11,15 @@ export const createGroup = async (request: FastifyRequest, reply: FastifyReply) 
 
         const account = await tryFindAccountBySessionToken(auth_token, prisma);
         if (account == undefined) {
-            reply.status(401).send({ status: "BAD_AUTH" });
+            reply.status(200).send({ status: "BAD_AUTH" });
         }
 
         if (isStringEmptyOrWhitespace(group_name)) {
-            reply.status(406).send({ status: "EMPTY_GROUP_NAME" });
+            reply.status(200).send({ status: "EMPTY_GROUP_NAME" });
         }
 
         if (group_name.length > 128) {
-            reply.status(406).send({ status: "NAME_TOO_LONG" });
+            reply.status(200).send({ status: "NAME_TOO_LONG" });
         }
 
         // Create the new group

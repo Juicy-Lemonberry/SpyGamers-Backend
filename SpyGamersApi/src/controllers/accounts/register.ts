@@ -17,23 +17,23 @@ export const register = async (request: FastifyRequest, reply: FastifyReply) => 
     const { username, email, password } = request.body as { username: string; email: string; password: string };
 
     if (password.length < 4) {
-        return reply.status(400).send({ status: "PASSWORD_TOO_SHORT" });
+        return reply.status(200).send({ status: "PASSWORD_TOO_SHORT" });
     }
 
     if (password.length > 16) {
-        return reply.status(400).send({ status: "PASSWORD_TOO_LONG" });
+        return reply.status(200).send({ status: "PASSWORD_TOO_LONG" });
     }
 
     if (username.length > 128) {
-        return reply.status(400).send({ status: "USERNAME_TOO_LONG" });
+        return reply.status(200).send({ status: "USERNAME_TOO_LONG" });
     }
 
     if (!regexValidateEmail(email)) {
-        return reply.status(400).send({ status: "INVALID_EMAIL" });
+        return reply.status(200).send({ status: "INVALID_EMAIL" });
     }
 
     if (email.length > 256) {
-        return reply.status(400).send({ status: "EMAIL_TOO_LONG" });
+        return reply.status(200).send({ status: "EMAIL_TOO_LONG" });
     }
 
     // TODO: SMTP to verify email?
@@ -56,7 +56,7 @@ export const register = async (request: FastifyRequest, reply: FastifyReply) => 
 
             const isUniqueConstraintViolation = error.code === "P2002";
             if (isUniqueConstraintViolation) {
-                return reply.status(400).send({ status: `${error.meta?.target}_TAKEN`.toUpperCase() });
+                return reply.status(200).send({ status: `${error.meta?.target}_TAKEN`.toUpperCase() });
             }
         }
 

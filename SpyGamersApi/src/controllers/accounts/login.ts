@@ -18,7 +18,7 @@ export const login = async (request: FastifyRequest, reply: FastifyReply) => {
         // Verify the password
         const match = await bcrypt.compare(password, account.password);
         if (!match) {
-            return reply.status(401).send({ status: "PASSWORD_INVALID" });
+            return reply.status(200).send({ status: "PASSWORD_INVALID" });
         }
 
         const sessionToken = randomBytes(32).toString('hex');
@@ -39,7 +39,7 @@ export const login = async (request: FastifyRequest, reply: FastifyReply) => {
         reply.status(201).send({ status: "SUCCESS", session_token: sessionToken, account_id: account.id, timezone_code: account.timezone_code  });
     } catch (error) {
         if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
-            return reply.status(404).send({ status: `USERNAME_INVALID` });
+            return reply.status(200).send({ status: `USERNAME_INVALID` });
         }
 
         reply.status(500).send({ status: "FAILURE" });
